@@ -1,4 +1,107 @@
-# Main entrypoint of the workflow. 
-# Please follow the best practices: 
-# https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
-# in particular regarding the standardized folder structure mentioned there. 
+## Check minimum Snakemake version
+
+from snakemake.utils import min_version
+
+min_version("5.20.1")
+
+## Import required libraries
+import os
+
+## Configuration file check
+
+if len(config) == 0:
+    if os.path.isfile("config/config.yaml"):
+
+        configfile: "config/config.yaml"
+
+    else:
+        sys.exit(
+            f"Make sure there is a config.yaml file in {os.getcwd()} or specify one with the --configfile commandline parameter."
+        )
+
+
+## Parse config file
+
+DATA = os.path.normpath(config["DATA_TYPE"])
+INPUT_DIR = os.path.normpath(config["INPUT"])
+SCRIPTS_DIR = os.path.normpath("workflow/scripts/") # How to call the scripts during modularization?
+SAMPLES = os.listdir(f"{INPUT_DIR}")
+
+# get file count within sample directories
+sample_dirs = os.path.join(f"{INPUT_DIR}", sample) for sample in SAMPLES 
+file_counts = { len([f for f in os.listdir(samp_dir)]) for samp_dir in sample_dirs }
+# Check the file counts
+if all(count == 2 for count in file_counts.values()):
+    print("Assuming Paired-End data since all sample directories have exactly 2 files.")
+    IS_PAIRED_END=TRUE
+elif all(count == 1 for count in file_counts.values()):
+    print("Assuming Single-End data since all sample directories have exactly 2 files.")
+    IS_PAIRED_END=FALSE
+else:
+    print("Sample directories have an unexpected number of files. Exiting...")
+    sys.exit(1)
+    
+
+IS_PAIRED_END=os.listdir(f"{INPUT_DIR}")
+
+## NO USE branch() 
+#if(config["PAIRED_END"] == FALSE){ 
+#    PAIRED=[] # empty 
+#}elif(config["PAIRE_END"]==TRUE){
+#    PAIRED=["_R1", "_R2"]
+#}else{
+#    print("ERROR: Invalid config entry for <PAIRED_END>. Please input 'TRUE' or 'FALSE'.")
+#    quit()
+#}
+branch(IS_PAIRED_END,pair=["_R1", "_R2"],pair=[])
+# Or maybe 
+branch(IS_PAIRED_END, then=expand(["{sample}_{progenitor}{pair}.bam"], sample=SAMPLES, progenitor=PROGENITORS, pair=["_R1", "_R2"]), otherwise=expand(["{sample}_{progenitor}.bam"], sample=SAMPLES, progenitor=PROGENITORS))
+# Or maybe 
+branch(IS_PAIRED_END, then=expand(["{sample}_{progenitor}{pair}.bam"], sample=SAMPLES, progenitor=PROGENITORS, pair=["_R1", "_R2"]), otherwise=expand(["{sample}_{progenitor}.bam"], sample=SAMPLES, progenitor=PROGENITORS))
+expand(branch(IS_PAIRED_END, then=["{sample}_{progenitor}{pair}.bam"], otherwise=["{sample}_{progenitor}.bam"]), <can_put_combinatoric_function_here>, sample=SAMPLES, progenitor=PROGENITORS, pair=["_R1", "_R2"])
+
+## To deal with multiple copies use expand function and lists eg.
+expand(["{sample}_{progenitor}{paired_read}.bam"], <can_put_combinatoric_function_here>, sample=SAMPLES, progenitor=PROGENITORS, paired_read=PAIRED)
+
+# the evaluate function
+evaluate("{sample} == '100'") # sample is wildcard
+
+
+### To determine if we use some_tool
+def use_sometool(wildcards):
+    # determine whether the tool shall be used based on the wildcard values.
+    ...
+
+rule a:
+    input:
+        branch(
+            use_sometool,
+            then="results/sometool/{dataset}.txt",
+            otherwise="results/someresult/{dataset}.txt"
+        )
+
+# If cases is specified, it does the following: Retrieve the value of the cases mapping using the return value of the condition (if it is a function), or the condition value itself as a key.
+branch(
+    lookup(dpath="tool/to/use", within=config),
+    cases={
+        "sometool": "results/sometool/{dataset}.txt",
+        "someothertool": "results/someothertool/{dataset}.txt"
+    }
+)
+
+
+### Regarding resources:
+Resources can have any arbitrary name, and must be assigned int or str values. In case of None, the resource is considered to be unset (i.e. ignored) in the rule.
+
+
+## LOG Can be multiple
+  log: stdout="logs/foo.stdout", stderr="logs/foo.stderr"
+
+
+# Source or smthg instead of SCRIPT DIR I think...
+params:
+        json=workflow.source_path("../resources/test.json")
+    shell:
+        "somecommand {params.json} > {output}"
+
+# CAN USE CONFIG (config["foo"]) DIRECTLY IN RULES

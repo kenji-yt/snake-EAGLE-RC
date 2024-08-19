@@ -1,1 +1,4 @@
-DATA: DNA
+DATA_TYPE: DNA
+SAMPLES: ["wa","za","bi"]
+PROGENITORS: ["pa","ma"]
+PAIRED_END: TRUE
