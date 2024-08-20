@@ -1,57 +1,27 @@
-#### Indexing reference rule ####
-
-
-# Index genome 1
-rule star_index_genome_1:
-    input:
-        fasta=f"{GENOME_DIR_1}/{GENOME_PARENT_1}.fa",
-    output:
-        directory(f"{GENOME_DIR_1}/star_genome"),
-    message:
-        "Testing STAR index"
-    threads: workflow.cores
-    params:
-        extra="",
-    log:
-        f"logs/star_index_{GENOME_PARENT_1}.log",
-    wrapper:
-        "v2.3.0/bio/star/index"
-
-
-# Index genome 2
-rule star_index_genome_2:
-    input:
-        fasta=f"{GENOME_DIR_2}/{GENOME_PARENT_2}.fa",
-    output:
-        directory(f"{GENOME_DIR_2}/star_genome"),
-    message:
-        "Testing STAR index"
-    threads: workflow.cores
-    params:
-        extra="",
-    log:
-        f"logs/star_index_{GENOME_PARENT_1}.log",
-    wrapper:
-        "v2.3.0/bio/star/index"
-
-
 #### Alignment rule ####
 
 
-rule star_pe_multi_1:
+rule star_alignment:
     input:
-        fq1=f"{RAW_DATA_DIR}/{{sample}}_R1.fastq.gz",
-        # paired end reads needs to be ordered so each item in the two lists match
-        fq2=f"{RAW_DATA_DIR}/{{sample}}_R2.fastq.gz",  #optional
-        # path to STAR reference genome index
-        idx=f"{GENOME_DIR_1}/star_genome",
+        ### Make an input function 
+        branch(
+            expand(file_counts["{sample}"],sample=SAMPLES),
+            cases={
+                2=expand([fq1=sample_files["{sample}"][0], fq2=sample_files["{sample}"][1]], sample=SAMPLES),
+                1=expand([fq1=FQ_DICT["{sample}"][0]], sample=SAMPLES)
+            }
+        )
+        idx = expand("results/star/{progenitor}",progenitor=PROGENITORS),
+
     output:
         # see STAR manual for additional output files
-        aln=f"{OUTPUT_DIR}/star/{{sample}}/1_pe_aligned.bam",
-        log=f"{OUTPUT_DIR}/star/{{sample}}/1_Log.out",
-        sj=f"{OUTPUT_DIR}/star/{{sample}}/1_SJ.out.tab",
+        aln=expand("results/star/{sample}/{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS),
+        #log="results/star/{{sample}}/1_Log.out",#???
+        #sj="results/star/{{sample}}/1_SJ.out.tab",#???
     log:
-        "logs/star/{sample}.log",
+        expand("logs/star/aligment/{sample}.log", sample=SAMPLES),
+    message:
+        "Aligning RNA seq data with STAR."
     params:
         # optional parameters
         extra=f"--outSAMtype BAM SortedByCoordinate",
@@ -60,23 +30,18 @@ rule star_pe_multi_1:
         "v2.3.0/bio/star/align"
 
 
-rule star_pe_multi_2:
+
+#### Indexing reference rule ####
+
+rule star_index_genomes:
     input:
-        fq1=f"{RAW_DATA_DIR}/{{sample}}_R1.fastq.gz",
-        # paired end reads needs to be ordered so each item in the two lists match
-        fq2=f"{RAW_DATA_DIR}/{{sample}}_R2.fastq.gz",  #optional
-        # path to STAR reference genome index
-        idx=f"{GENOME_DIR_2}/star_genome",
+        fasta = expand(f"{INPUT_DIR}/progenitors/{{progenitor}}/{{file_name}}.fa",progenitor=PROGENITORS),
     output:
-        # see STAR manual for additional output files
-        aln=f"{OUTPUT_DIR}/star/{{sample}}/2_pe_aligned.bam",
-        log=f"{OUTPUT_DIR}/star/{{sample}}/2_Log.out",
-        sj=f"{OUTPUT_DIR}/star/{{sample}}/2_SJ.out.tab",
-    log:
-        "logs/star/{sample}.log",
-    params:
-        # optional parameters
-        extra=f"--outSAMtype BAM SortedByCoordinate",
+        directory(expand("results/star/{progenitor}",progenitor=PROGENITORS)),
+    message:
+        "Indexing reference genome with STAR."
     threads: workflow.cores
+    log:
+        expand("logs/star/index/{progenitor}.log",progenitor=PROGENITORS),
     wrapper:
-        "v2.3.0/bio/star/align"
+        "v2.3.0/bio/star/index"
