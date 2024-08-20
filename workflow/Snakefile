@@ -9,7 +9,7 @@ import os
 import glob
 import re 
 
-## Configuration file check
+## Configuration check
 
 if len(config) == 0:
     
@@ -37,99 +37,40 @@ for sample in SAMPLES:
 
     sample_files[sample] = files
 
+# get all read files
+patterns = [
+        f"{INPUT_DIR}/polyploids/**/*.fastq",
+        f"{INPUT_DIR}/polyploids/**/*.fasta",
+        f"{INPUT_DIR}/polyploids/**/*.fna",
+        f"{INPUT_DIR}/polyploids/**/*.fq",
+        f"{INPUT_DIR}/polyploids/**/*.fa",
+        f"{INPUT_DIR}/polyploids/**/*.fastq.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fasta.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fna.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fq.gz",
+        f"{INPUT_DIR}/polyploids/**/*.fa.gz",
+    ]
+all_read_files = [] 
+for pattern in patterns:
+        all_read_files.extend(glob.glob(pattern, recursive=True))
 
-# Make wildcard constraints
+
+### Make wildcard constraints ###
 import re
 sample_regex = "|".join(re.escape(sample) for sample in SAMPLES)
 progenitor_regex = "|".join(re.escape(progenitor) for progenitor in PROGENITORS)
 
-# Define the constraint using the regular expression
 wildcard_constraints:
     sample = sample_regex,
     progenitor = progenitor_regex
 
-#### Input functions ####
 
-# get start input
-def get_input_files(sample):
+### Rules ###
 
-    if len(sample_files[sample]) == 2:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
-            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
-        }
-    else:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-        }
-
-
-
-# get assembly
-def get_assembly(progenitor):
-    
-    path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
-
-    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
-
-    fasta_files = []
-
-    for extension in fasta_extensions:
-        fasta_files.extend(glob.glob(os.path.join(path, extension)))
-
-    if len(fasta_files) > 1:
-        sys.exit(
-        f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
-        )
-    
-    if len(fasta_files) == 0:
-        sys.exit(
-        f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
-        )
-
-    return fasta_files[0]
-
-
+include: "rules/RNA_alignment.smk"
+include: "rules/input_functions.smk"
+include: "rules/quality_check.smk"
 
 rule all:
     input:
-        expand("results/star/{sample}/{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS),
-        
-
-rule star_alignment:
-    input:
-        unpack(lambda wildcards: get_input_files(wildcards.sample)),
-        idx = "results/star/{progenitor}",
-        
-    output:
-        # see STAR manual for additional output files
-        aln="results/star/{sample}/{progenitor}_aligned.bam",
-        #log="results/star/{{sample}}/1_Log.out",#???
-        #sj="results/star/{{sample}}/1_SJ.out.tab",#???
-    log:
-        "results/logs/star/aligment/{sample}_{progenitor}.log",
-    message:
-        "Aligning RNA seq data with STAR."
-    params:
-        # optional parameters
-        extra=f"--outSAMtype BAM SortedByCoordinate",
-    threads: workflow.cores
-    wrapper:
-        "v4.0.0/bio/star/align"
-
-
-
-#### Indexing reference rule ####
-
-rule star_index_genomes:
-    input:
-        fasta = lambda wildcards: get_assembly(wildcards.progenitor)
-    output:
-        idx = directory("results/star/{progenitor}"),
-    message:
-        "Indexing reference genome with STAR."
-    threads: workflow.cores
-    log:
-        "results/logs/star/index/{progenitor}.log",
-    wrapper:
-        "v4.0.0/bio/star/index"
+        "results/MultiQC/multiqc_report.html"

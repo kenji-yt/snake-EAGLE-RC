@@ -1,71 +1,83 @@
-# This file includes all functions to define inputs to other rules
+#### Input functions ####
+
+# get star input
+def get_fastqc_files(sample):
+
+    if len(sample_files[sample]) == 2:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
+            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+        }
+    else:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+        }
+
+# get star input
+def get_input_files(sample):
+
+    if len(sample_files[sample]) == 2:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
+            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+        }
+    else:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+        }
 
 
-def multiqc_input(wildcards):
+
+# get assembly
+def get_assembly(progenitor):
+    
+    path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
+
+    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
+
+    fasta_files = []
+
+    for extension in fasta_extensions:
+        fasta_files.extend(glob.glob(os.path.join(path, extension)))
+
+    if len(fasta_files) > 1:
+        sys.exit(
+        f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
+        )
+    
+    if len(fasta_files) == 0:
+        sys.exit(
+        f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
+        )
+
+    return fasta_files[0]
+
+
+# Muli QC input
+def multiqc_input(type):
+    
     input = []
-    if config["RUN_FASTQC"]:
-        input.extend(
-            expand(
-                f"{OUTPUT_DIR}/fastqc/{{sample}}_{{extension}}_fastqc.zip",
-                sample=samples.name.values.tolist(),
-                extension=["R1", "R2"],
-            )
-        )
-    if config["RUN_STAR"]:
-        input.extend(
-            expand(
-                f"{OUTPUT_DIR}/qualimap/{{sample}}/aligned_{{one_or_two}}",
-                sample=samples.name.values.tolist(),
-                one_or_two=["1", "2"],
-            )
-        )
-    if config["RUN_EAGLE"]:
-        input.extend(
-            expand(
-                f"{OUTPUT_DIR}/read_sorting/{{sample}}/{{sample}}_classified{{one_or_two}}.ref.bam",
-                sample=samples.name.values.tolist(),
-                one_or_two=["1", "2"],
-            )
-        )
-    if config["RUN_FEATURECOUNTS"]:
-        input.extend(
-            expand(
-                f"{OUTPUT_DIR}/featureCounts/{{sample}}/{{sample}}_subgenome_{{one_or_two}}{{suffix}}",
-                sample=samples.name.values.tolist(),
-                one_or_two=["1", "2"],
-                suffix=[".featureCounts", ".featureCounts.summary"],
-            )
-        )
-    if config["RUN_EDGER"]:
-        input.extend(
-            expand(
-                f"{OUTPUT_DIR}/edgeR/subgenome_{{one_or_two}}/{{outfile}}",
-                one_or_two=["1", "2"],
-                outfile=["result_table.txt", "MDS.png", "fc_cpm.png"],
-            )
-        )
 
-    return input
-
-
-def edgeR_input(wildcards):
-    input = []
     input.extend(
-        expand(
-            f"{OUTPUT_DIR}/featureCounts/{{sample}}/{{sample}}_subgenome_{{one_or_two}}{{suffix}}",
-            sample=samples.name.values.tolist(),
-            one_or_two=["1", "2"],
-            suffix=[".featureCounts", ".featureCounts.summary"],
-        )
+        expand("results/fastqc/{read_file}_fastqc.zip",read_file=all_read_files)
     )
+    
+    if type=="RNA":
+        input.extend(
+            expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
+        )
+    elif type=="DNA":
+        "watevaaaa"
+    elif type=="WGBS":
+        # I guess :
+        input.extend(
+            expand("results/bismark/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
+        )
+    else:
+        sys.exit(
+        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
+        )
+
     return input
-# Special parameters for Feature Count
-# def feature_count_params(wildcards):
-#    input = []
-#    if config["PAIRED_END"]:
-#       input.extend("--primary --p")
-#      input.extend(config["EXTRA_PARAMS"])
-# else:
-#    input.extend("--primary")
-#   input.extend(config["EXTRA_PARAMS"])
-# return " ".join(input)
+
+

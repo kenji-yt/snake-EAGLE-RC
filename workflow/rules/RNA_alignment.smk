@@ -1,25 +1,18 @@
-#### Alignment rule ####
+# RNA alignment with STAR
 
 
 rule star_alignment:
     input:
-        ### Make an input function 
-        branch(
-            expand(file_counts["{sample}"],sample=SAMPLES),
-            cases={
-                2=expand([fq1=sample_files["{sample}"][0], fq2=sample_files["{sample}"][1]], sample=SAMPLES),
-                1=expand([fq1=FQ_DICT["{sample}"][0]], sample=SAMPLES)
-            }
-        )
-        idx = expand("results/star/{progenitor}",progenitor=PROGENITORS),
-
+        unpack(lambda wildcards: get_input_files(wildcards.sample)),
+        idx = "results/star/{progenitor}",
+        
     output:
         # see STAR manual for additional output files
-        aln=expand("results/star/{sample}/{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS),
+        aln="results/star/{sample}/{progenitor}_aligned.bam",
         #log="results/star/{{sample}}/1_Log.out",#???
         #sj="results/star/{{sample}}/1_SJ.out.tab",#???
     log:
-        expand("logs/star/aligment/{sample}.log", sample=SAMPLES),
+        "results/logs/star/aligment/{sample}_{progenitor}.log",
     message:
         "Aligning RNA seq data with STAR."
     params:
@@ -27,7 +20,7 @@ rule star_alignment:
         extra=f"--outSAMtype BAM SortedByCoordinate",
     threads: workflow.cores
     wrapper:
-        "v2.3.0/bio/star/align"
+        "v4.0.0/bio/star/align"
 
 
 
@@ -35,13 +28,13 @@ rule star_alignment:
 
 rule star_index_genomes:
     input:
-        fasta = expand(f"{INPUT_DIR}/progenitors/{{progenitor}}/{{file_name}}.fa",progenitor=PROGENITORS),
+        fasta = lambda wildcards: get_assembly(wildcards.progenitor)
     output:
-        directory(expand("results/star/{progenitor}",progenitor=PROGENITORS)),
+        idx = directory("results/star/{progenitor}"),
     message:
         "Indexing reference genome with STAR."
     threads: workflow.cores
     log:
-        expand("logs/star/index/{progenitor}.log",progenitor=PROGENITORS),
+        "results/logs/star/index/{progenitor}.log",
     wrapper:
-        "v2.3.0/bio/star/index"
+        "v4.0.0/bio/star/index"
