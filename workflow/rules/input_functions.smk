@@ -1,6 +1,6 @@
 #### Input functions ####
 
-# get star input
+# get fastqc input
 def get_fastqc_files(sample):
 
     if len(sample_files[sample]) == 2:
@@ -27,7 +27,6 @@ def get_input_files(sample):
         }
 
 
-
 # get assembly
 def get_assembly(progenitor):
     
@@ -51,6 +50,37 @@ def get_assembly(progenitor):
         )
 
     return fasta_files[0]
+
+
+# get eagle-rc input
+def get_bam_files(type):
+
+    # get file count and list within sample directories
+    bam_files_for_sample = {}
+    
+    bam_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
+        
+    files  = os.listdir(sample_dir)
+
+    sample_files[sample] = files
+
+
+
+    if type=="RNA":
+        return {
+            'reads1':"results/star/{sample}/{bam_files[sample][0]}",
+            'reads2':"results/star/{sample}/{bam_files[sample][1]}"
+        }
+
+    if len(sample_files[sample]) == 2:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
+            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+        }
+    else:
+        return {
+            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+        }
 
 
 # Muli QC input

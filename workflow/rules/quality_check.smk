@@ -49,6 +49,6 @@ rule multiqc_dir:
     params:
         multiqcdir = lambda w, output: os.path.split(output.out)[0],
     log:
-        "logs/multiqc.log",
+        "results/logs/multiqc.log",
     wrapper:
         "v2.9.1/bio/multiqc"

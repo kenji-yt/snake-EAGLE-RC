@@ -134,6 +134,7 @@ rule install_eagle:
 rule read_sorting:
     input:
         eagle_bin=EAGLE,
+        
         reads1=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/1_pe_aligned.bam",
         reads2=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/2_pe_aligned.bam",
     output:

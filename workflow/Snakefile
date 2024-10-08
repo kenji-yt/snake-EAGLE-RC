@@ -21,10 +21,13 @@ if len(config) == 0:
 ## Parse Input directory
 
 INPUT_DIR = os.path.normpath(config["INPUT"])
-DATA_TYPE = os.path.basename(INPUT_DIR)
+DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
 
-SAMPLES = [ sample for sample in os.listdir(f"{INPUT_DIR}/polyploids") if sample != "control_genome" ]
+SAMPLES = [ sample for sample in os.listdir(f"{INPUT_DIR}/polyploids") if sample != "control_genome" ] # Control genome used in methylation data (!?)
 PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
+
+# If a config file is desired/necessary we can add if statement to see if it exists in the input directory. 
+# Then verify if input dir format matches config specifications. 
 
 # get file count and list within sample directories
 
@@ -35,10 +38,10 @@ for sample in SAMPLES:
     
     files  = os.listdir(sample_dir)
 
-    sample_files[sample] = files
+    sample_files[sample] = files 
 
 # get all read files
-patterns = [
+accepted_read_patterns = [
         f"{INPUT_DIR}/polyploids/**/*.fastq",
         f"{INPUT_DIR}/polyploids/**/*.fasta",
         f"{INPUT_DIR}/polyploids/**/*.fna",
@@ -51,7 +54,7 @@ patterns = [
         f"{INPUT_DIR}/polyploids/**/*.fa.gz",
     ]
 all_read_files = [] 
-for pattern in patterns:
+for pattern in accepted_read_patterns:
         all_read_files.extend(glob.glob(pattern, recursive=True))
 
 
@@ -60,7 +63,7 @@ import re
 sample_regex = "|".join(re.escape(sample) for sample in SAMPLES)
 progenitor_regex = "|".join(re.escape(progenitor) for progenitor in PROGENITORS)
 
-wildcard_constraints:
+wildcard_constraints: # limit the value of these wildcards to directory names 
     sample = sample_regex,
     progenitor = progenitor_regex
 

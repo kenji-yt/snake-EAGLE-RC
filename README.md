@@ -9,9 +9,7 @@ A Snakemake workflow for `<description>`
 
 ## Usage
 
-The usage of this workflow is described in the [Snakemake Workflow Catalog](https://snakemake.github.io/snakemake-workflow-catalog/?usage=<owner>%2F<repo>).
-
-If you use this workflow in a paper, don't forget to give credits to the authors by citing the URL of this (original) <repo>sitory and its DOI (see above).
+The tool offers a minimal amount of filtering post alignment but it is not very flexible in that regard. If you would rather do it yourself and just use the read sorting tool, just create the "results/star" (or/and bismark or XXX depending on data type) directory in the snake-EAGLE-RC directory and add your aligned reads. 
 
 # TODO
 
