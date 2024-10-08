@@ -97,7 +97,7 @@ def multiqc_input(type):
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
     elif type=="DNA":
-        "watevaaaa"
+        "To be determined"
     elif type=="WGBS":
         # I guess :
         input.extend(
