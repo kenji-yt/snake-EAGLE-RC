@@ -45,7 +45,7 @@ rule download_eagle:
     params:
         eagle_version=EAGLE_VERSION,
     log:
-        "logs/download_eagle.log",
+        "results/logs/eagle_rc/download_eagle.log",
     conda:
         ENV_PATH
     shell:
@@ -60,7 +60,7 @@ rule extract_eagle:
     params:
         build_prefix=lambda w, input: os.path.split(input.eagle_tar)[0],
     log:
-        "logs/extract_eagle.log",
+        "results/logs/eagle_rc/extract_eagle.log",
     conda:
         ENV_PATH
     shell:
@@ -74,7 +74,7 @@ rule download_htslib:
         htslib_version=HTSLIB_VERSION,
         htslib_tar_name=HTSLIB_TAR_NAME,
     log:
-        "logs/download_htslib.log",
+        "results/logs/eagle_rc/download_htslib.log",
     conda:
         ENV_PATH
     shell:
@@ -89,7 +89,7 @@ rule extract_htslib:
     params:
         build_prefix=lambda w, input: os.path.split(input.htslib_tar)[0],
     log:
-        "logs/extract_htslib.log",
+        "results/logs/eagle_rc/extract_htslib.log",
     conda:
         ENV_PATH
     shell:
@@ -107,7 +107,7 @@ rule build_eagle:
         eagle_dir_path=lambda w, input: os.path.split(input.eagle_mk)[0],
         eagle_mk_flags=EAGLE_MK_FLAGS,
     log:
-        "logs/build_eagle.log",
+        "results/logs/eagle_rc/build_eagle.log",
     conda:
         ENV_PATH
     shell:
@@ -124,7 +124,7 @@ rule install_eagle:
         eagle_dir_path=lambda w, input: os.path.split(input.eagle_bin)[0],
         eagle_mk_flags=EAGLE_MK_FLAGS,
     log:
-        "logs/install_eagle.log",
+        "results/logs/eagle_rc/install_eagle.log",
     conda:
         ENV_PATH
     shell:
@@ -134,22 +134,27 @@ rule install_eagle:
 rule read_sorting:
     input:
         eagle_bin=EAGLE,
-        
-        reads1=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/1_pe_aligned.bam",
-        reads2=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/2_pe_aligned.bam",
+        unpack(lambda wildcards: get_bam_files(DATA_TYPE, wildcards.sample)), 
+        # Make it work for any ploidy!
+        #reads1=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/1_pe_aligned.bam",
+        #reads2=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/2_pe_aligned.bam",
     output:
-        o1=f"{OUTPUT_DIR}/read_sorting/{{sample}}/{{sample}}_classified1.ref.bam",
-        o2=f"{OUTPUT_DIR}/read_sorting/{{sample}}/{{sample}}_classified2.ref.bam",
+        unpack(lambda wildcards: get_eagle_output(wildcards.sample)),
+        #o1=f"results/eagle_rc/{{sample}}/{{sample}}_classified1.ref.bam",
+        #o2=f"results/eagle_rc/{{sample}}/{{sample}}_classified2.ref.bam",
     log:
-        f"logs/eagle_rc/read_sorting_{{sample}}_pe.log",
+        "results/logs/eagle_rc/sorting/{sample}_{progenitor}.log",
     conda:
         ENV_PATH
     params:
-        list=f"{OUTPUT_DIR}/read_sorting/{{sample}}/{{sample}}_classified_reads.list",
-        genome1=f"{GENOME_DIR_1}/{GENOME_PARENT_1}.fa",
-        genome2=f"{GENOME_DIR_2}/{GENOME_PARENT_2}.fa",
-        output=lambda w, output: os.path.splitext(os.path.splitext(output.o1)[0])[0][
-            :-1
-        ],
+        list=f"results/eagle_rc/{sample}/{sample}_classified_reads.list",
+        unpack(get_assemblies)
+        #genome1=f"{GENOME_DIR_1}/{GENOME_PARENT_1}.fa",
+        #genome2=f"{GENOME_DIR_2}/{GENOME_PARENT_2}.fa",
+        output=f"results/eagle_rc/{sample}/{sample}_classified", 
+        #output=lambda w, output: os.path.splitext(os.path.splitext(output.o1)[0])[0][
+        #    :-1
+        #],
     shell:
-        "{input.eagle_bin} --ngi --paired --ref1={params.genome1} --bam1={input.reads1} --ref2={params.genome2} --bam2={input.reads2} -o {params.output} --bs=3 > {params.list}"
+        lambda wildcards: make_eagle_command(input, params, wildcards.sample, DATA_TYPE)
+        #"{input.eagle_bin} --ngi --paired --ref1={params.genome1} --bam1={input.reads1} --ref2={params.genome2} --bam2={input.reads2} -o {params.output} --bs=3 > {params.list}"

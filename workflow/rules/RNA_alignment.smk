@@ -3,7 +3,7 @@
 
 rule star_alignment:
     input:
-        unpack(lambda wildcards: get_input_files(wildcards.sample)),
+        unpack(lambda wildcards: get_read_files(wildcards.sample)),
         idx = "results/star/{progenitor}",
         
     output:
