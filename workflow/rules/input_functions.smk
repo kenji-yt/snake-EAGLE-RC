@@ -56,18 +56,18 @@ def get_assembly(progenitor):
 def get_bam_files(type, sample):
 
     if type=="RNA":
-        bam_files = {}
-        for progenitor in PROGENITORS:
-            bam_files[progenitor] = "results/star/{sample}/{sample}_{progenitor}_aligned.bam"
+        #bam_files = {}
+        #for progenitor in PROGENITORS:
+        #    bam_files[progenitor] = f"results/star/{sample}/{sample}_{progenitor}_aligned.bam"
 
-        return(bam_files)
-        #return {progenitor:f"results/star/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+        #return(bam_files)
+        return {progenitor:f"results/star/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
-    #elif type=="DNA": # Unknown yet
-        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    elif type=="DNA": # Unknown yet
+        return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
     
-    #elif type=="WGBS": 
-        #return {progenitor:f"results/bismarks/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    elif type=="WGBS": 
+        return {progenitor:f"results/bismarks/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
     else:
         sys.exit(
@@ -83,13 +83,14 @@ def get_eagle_output(sample):
 
     return output_ref_files
 
+
 # get assembly
-def get_assemblies(wildcards): # Here I still pass an argument because of previous error. Also check snakemake tutorial.
+def get_assemblies(progenitors): # Here I still pass an argument because of previous error. Also check snakemake tutorial.
     
     fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
 
     assembly_files = {}
-    for progenitor in PROGENITORS:
+    for progenitor in progenitors:
 
         path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
 
@@ -113,22 +114,22 @@ def get_assemblies(wildcards): # Here I still pass an argument because of previo
     return assembly_files
 
 
-def make_eagle_command(input, params, sample, type):
+def make_eagle_command(type, input, assemblies, params, output):
 
-    command = "{input.eagle} --ngi "
+    command = f"{input['eagle_bin']} --ngi "
     
     if len(sample_files[sample]) == 2:
         command += "--paired "
 
     for index, progenitor in enumerate(PROGENITORS):
-        command += "--ref{index}={params[progenitor]} --bam{index}={input[progenitor]} " 
+        command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={assemblies[progenitor]} " 
 
-    command += "-o {params.output_prefix} "
+    command += f"-o {params['output_prefix']} "
 
     if type=="WGBS":
         command += "--bs=3 "
     
-    command += "> {output.reads_list}"
+    command += f"> {output['reads_list']}"
 
     return command
 
