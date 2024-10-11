@@ -1,30 +1,32 @@
 #### Input functions ####
 
-# get fastqc input
-def get_fastqc_files(sample):
+# get read input
+def get_read_files(type, sample):
 
-    if len(sample_files[sample]) == 2:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
-            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
-        }
-    else:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-        }
+    if type=="RNA": 
+        if len(sample_files[sample]) == 2:
+            return {
+                'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
+                'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+            }
+        else:
+            return {
+                'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+            }
 
-# get star input
-def get_read_files(sample):
+    elif type=="WGBS":
+        if len(sample_files[sample]) == 2:
+            return {
+                'fq_1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
+                'fq_2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+            }
+        else:
+            return {
+                'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+            }
 
-    if len(sample_files[sample]) == 2:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
-            'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
-        }
-    else:
-        return {
-            'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-        }
+    #elif type=="DNA":
+        # TBD
 
 
 # get assembly
@@ -52,6 +54,24 @@ def get_assembly(progenitor):
     return fasta_files[0]
 
 
+# get qualimap input depending on data type
+def get_bam_path(type, sample, progenitor):
+
+    if type=="RNA":
+        return f"results/star/{sample}/{sample}_{progenitor}_aligned.bam",
+
+    #elif type=="DNA": # Unknown yet
+        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    
+    elif type=="WGBS": 
+        return f"results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",
+
+    else:
+        sys.exit(
+        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
+        )
+
+
 # get eagle-rc input
 def get_bam_files(type, sample):
 
@@ -67,7 +87,7 @@ def get_bam_files(type, sample):
         return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
     
     elif type=="WGBS": 
-        return {progenitor:f"results/bismarks/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+        return {progenitor:f"results/bismark/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
     else:
         sys.exit(
@@ -146,10 +166,14 @@ def multiqc_input(type):
     input.extend(
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
-
+    
     input.extend(
-            expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES) 
-    )
+            expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
+        )
+
+    #input.extend( # Later I must ask this
+    #        expand("results/eagle_rc/{sample}/{sample}_{progenitor}.ref.bam", sample=SAMPLES, progenitor=PROGENITORS)     
+    #)
 
     if type=="WGBS":
         "Something about conversion"

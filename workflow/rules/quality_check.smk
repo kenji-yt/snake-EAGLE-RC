@@ -23,7 +23,8 @@ rule fastqc:
 rule qualimap_star:
     input:
         # BAM aligned, splicing-aware, to reference genome
-        bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
+        bam=lambda wildcards: get_bam_path(DATA_TYPE, wildcards.sample, wildcards.progenitor),
+        #bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     output:
         directory("results/qualimap/{sample}/{progenitor}"),
     log:

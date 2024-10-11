@@ -70,3 +70,7 @@ rule read_sorting:
         shell(command)
         #"{input.eagle_bin} --ngi --paired --ref1={params.genome1} --bam1={input.reads1} --ref2={params.genome2} --bam2={input.reads2} -o {params.output} --bs=3 > {params.list}"
 
+
+#rule rename_sorted_reads: 
+# SOME RULE TO CHANGE the numbers to actual genome assignment. 
+    

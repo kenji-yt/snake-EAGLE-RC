@@ -71,6 +71,7 @@ wildcard_constraints: # limit the value of these wildcards to directory names
 ### Rules ###
 
 include: "rules/RNA_alignment.smk"
+include: "rules/WGBS_alignment.smk"
 include: "rules/input_functions.smk"
 include: "rules/quality_check.smk"
 include: "rules/read_sorting.smk"
