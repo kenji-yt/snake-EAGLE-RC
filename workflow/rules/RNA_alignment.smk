@@ -8,7 +8,7 @@ rule star_alignment:
         
     output:
         # see STAR manual for additional output files
-        aln="results/star/{sample}/{progenitor}_aligned.bam",
+        aln="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
         #log="results/star/{{sample}}/1_Log.out",#???
         #sj="results/star/{{sample}}/1_SJ.out.tab",#???
     log:

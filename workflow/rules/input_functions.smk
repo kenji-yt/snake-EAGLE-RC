@@ -56,13 +56,18 @@ def get_assembly(progenitor):
 def get_bam_files(type, sample):
 
     if type=="RNA":
-        return {progenitor:f"results/star/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+        bam_files = {}
+        for progenitor in PROGENITORS:
+            bam_files[progenitor] = "results/star/{sample}/{sample}_{progenitor}_aligned.bam"
 
-    elif type=="DNA": # Unknown yet
-        return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+        return(bam_files)
+        #return {progenitor:f"results/star/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+
+    #elif type=="DNA": # Unknown yet
+        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
     
-    elif type=="WGBS": 
-        return {progenitor:f"results/bismarks/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    #elif type=="WGBS": 
+        #return {progenitor:f"results/bismarks/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
     else:
         sys.exit(
@@ -74,12 +79,12 @@ def get_eagle_output(sample):
     
     output_ref_files = {}
     for index, progenitor in enumerate(PROGENITORS):
-        output_ref_files[progenitor] = f"results/eagle_rc/{sample}/{sample}_classified{index}.ref.bam"
+        output_ref_files[f"{progenitor}"] = f"results/eagle_rc/{sample}/{sample}_classified{index}.ref.bam"
 
     return output_ref_files
 
 # get assembly
-def get_assemblies():
+def get_assemblies(wildcards): # Here I still pass an argument because of previous error. Also check snakemake tutorial.
     
     fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
 
@@ -110,20 +115,20 @@ def get_assemblies():
 
 def make_eagle_command(input, params, sample, type):
 
-    command = f"{input.eagle} --ngi "
+    command = "{input.eagle} --ngi "
     
     if len(sample_files[sample]) == 2:
         command += "--paired "
 
     for index, progenitor in enumerate(PROGENITORS):
-        command += f"--ref{index}= {params.{progenitor}} --bam{index}={input.{progenitor}} " 
+        command += "--ref{index}={params[progenitor]} --bam{index}={input[progenitor]} " 
 
-    command += f"-o {params.output} "
+    command += "-o {params.output_prefix} "
 
     if type=="WGBS":
         command += "--bs=3 "
     
-    command += f"> {params.list}"
+    command += "> {output.reads_list}"
 
     return command
 
@@ -137,22 +142,16 @@ def multiqc_input(type):
         expand("results/fastqc/{read_file}_fastqc.zip",read_file=all_read_files)
     )
     
-    ### ACTUALLY THEY WOULD ALL USE QUALIMAP 
-    if type=="RNA":
-        input.extend(
+    input.extend(
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
-    elif type=="DNA":
-        "To be determined"
-    elif type=="WGBS":
-        # I guess :
-        input.extend(
-            expand("results/bismark/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
-        )
-    else:
-        sys.exit(
-        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
-        )
+
+    input.extend(
+            expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES) 
+    )
+
+    if type=="WGBS":
+        "Something about conversion"
 
     return input
 

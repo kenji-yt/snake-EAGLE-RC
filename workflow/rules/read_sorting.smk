@@ -134,27 +134,30 @@ rule install_eagle:
 rule read_sorting:
     input:
         eagle_bin=EAGLE,
-        unpack(lambda wildcards: get_bam_files(DATA_TYPE, wildcards.sample)), 
-        # Make it work for any ploidy!
+        genome1="results/star/{sample}/{sample}_genome1_aligned.bam",
+        genome2="results/star/{sample}/{sample}_genome2_aligned.bam",
+        #unpack(lambda wildcards: get_bam_files(DATA_TYPE, wildcards.sample)), 
+        # FIX get_bam_files function! 
         #reads1=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/1_pe_aligned.bam",
         #reads2=f"{OUTPUT_DIR}/{DATA}_alignment/{{sample}}/2_pe_aligned.bam",
     output:
-        unpack(lambda wildcards: get_eagle_output(wildcards.sample)),
+        reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
+        #unpack(lambda wildcards: get_eagle_output(wildcards.sample)),
         #o1=f"results/eagle_rc/{{sample}}/{{sample}}_classified1.ref.bam",
         #o2=f"results/eagle_rc/{{sample}}/{{sample}}_classified2.ref.bam",
     log:
-        "results/logs/eagle_rc/sorting/{sample}_{progenitor}.log",
+        "results/logs/eagle_rc/sorting/{sample}_tonkin.log",
     conda:
         ENV_PATH
     params:
-        list=f"results/eagle_rc/{sample}/{sample}_classified_reads.list",
-        unpack(get_assemblies)
+        get_assemblies,
         #genome1=f"{GENOME_DIR_1}/{GENOME_PARENT_1}.fa",
         #genome2=f"{GENOME_DIR_2}/{GENOME_PARENT_2}.fa",
-        output=f"results/eagle_rc/{sample}/{sample}_classified", 
+        output_prefix="results/eagle_rc/{sample}/{sample}_classified", 
         #output=lambda w, output: os.path.splitext(os.path.splitext(output.o1)[0])[0][
         #    :-1
         #],
     shell:
         lambda wildcards: make_eagle_command(input, params, wildcards.sample, DATA_TYPE)
         #"{input.eagle_bin} --ngi --paired --ref1={params.genome1} --bam1={input.reads1} --ref2={params.genome2} --bam2={input.reads2} -o {params.output} --bs=3 > {params.list}"
+
