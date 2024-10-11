@@ -5,7 +5,7 @@ rule bismark_alignment:
     input:
         unpack(lambda wildcards: get_read_files(DATA_TYPE, wildcards.sample)),
         genome=lambda wildcards: get_assembly(wildcards.progenitor),
-        #bismark_indexes_dir="indexes/{genome}/Bisulfite_Genome",
+        bismark_indexes_dir= "{input_dir}/progenitors/{progenitor}/Bisulfite_Genome".format(input_dir=INPUT_DIR),
         #genomic_freq="indexes/{genome}/genomic_nucleotide_frequencies.txt"
     output:
         #unpack(lambda wildcards: get_bismark_out(type, wildcards.sample)), # If I want the option ambiguous and unmapped
@@ -39,3 +39,17 @@ rule bismark_alignment:
         basename='{sample}_{progenitor}' # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
     wrapper:
         "v4.7.1/bio/bismark/bismark"
+
+
+rule bismark_genome_preparation_fa:
+    input:
+        lambda wildcards: get_assembly(wildcards.progenitor),
+    output:
+        directory("{input_dir}/progenitors/{progenitor}/Bisulfite_Genome".format(input_dir=INPUT_DIR))
+    log:
+        "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
+    params:
+        ""  # optional params string
+    wrapper:
+        "v4.7.1/bio/bismark/bismark_genome_preparation"
+        
