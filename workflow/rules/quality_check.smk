@@ -17,13 +17,13 @@ rule fastqc:
 
 
 ###################
-## Qualimap rule ##
+## Qualimap rules ##
 ###################
 
-rule qualimap_star:
+rule qualimap_rule:
     input:
         # BAM aligned, splicing-aware, to reference genome
-        bam=lambda wildcards: get_bam_path(DATA_TYPE, wildcards.sample, wildcards.progenitor),
+        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
         #bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     output:
         directory("results/qualimap/{sample}/{progenitor}"),
@@ -33,6 +33,23 @@ rule qualimap_star:
         #extra=f"-nt {workflow.cores}",
     wrapper:
         "v2.3.2/bio/qualimap/bamqc"
+
+
+rule sort_bams:
+    input:
+        # BAM aligned, splicing-aware, to reference genome
+        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned.bam",
+        #bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
+    output:
+        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
+    log:
+        "results/logs/qualimap/sorting/{sample}/{progenitor}.log",
+    conda:
+        "../envs/samtools.yaml"
+    #params:
+        #extra=f"-nt {workflow.cores}",
+    shell:
+        "samtools sort {input.bam} > {output.bam}"
 
 
 ###################

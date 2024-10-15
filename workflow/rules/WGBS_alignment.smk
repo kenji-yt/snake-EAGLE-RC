@@ -5,7 +5,7 @@ rule bismark_alignment:
     input:
         unpack(lambda wildcards: get_read_files(DATA_TYPE, wildcards.sample)),
         genome=lambda wildcards: get_assembly(wildcards.progenitor),
-        bismark_indexes_dir= "{input_dir}/progenitors/{progenitor}/Bisulfite_Genome".format(input_dir=INPUT_DIR),
+        bismark_indexes_dir=f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome",
         #genomic_freq="indexes/{genome}/genomic_nucleotide_frequencies.txt"
     output:
         #unpack(lambda wildcards: get_bismark_out(type, wildcards.sample)), # If I want the option ambiguous and unmapped
@@ -14,11 +14,11 @@ rule bismark_alignment:
         #ambiguous_1="bams/{sample}_{genome}_ambiguous_reads_1.fq.gz",
         #ambiguous_2="bams/{sample}_{genome}_ambiguous_reads_2.fq.gz"
         bam="results/bismark/{sample}/{sample}_{progenitor}_aligned.bam", # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
-        #report="results/bismark/{sample}/{sample}_{progenitor}_report.txt",
+        report="results/bismark/{sample}/{sample}_{progenitor}_report.txt",
         #nucleotide_stats="results/bismark/{sample}/{sample}_{progenitor}.nucleotide_stats.txt",
         
     log:
-        "logs/bams/{sample}_{progenitor}.log"
+        "results/logs/bismark/alignment/{sample}_{progenitor}.log"
     params:
         # optional params string, e.g: -L32 -N0 -X400 --gzip
         # Useful options to tune:
@@ -45,7 +45,7 @@ rule bismark_genome_preparation_fa:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
     output:
-        directory("{input_dir}/progenitors/{progenitor}/Bisulfite_Genome".format(input_dir=INPUT_DIR))
+        directory(f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome")
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
     params:

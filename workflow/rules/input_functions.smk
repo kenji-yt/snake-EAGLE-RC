@@ -55,7 +55,7 @@ def get_assembly(progenitor):
 
 
 # get qualimap input depending on data type
-def get_bam_path(type, sample, progenitor):
+def get_bam_files(type, sample, progenitor):
 
     if type=="RNA":
         return f"results/star/{sample}/{sample}_{progenitor}_aligned.bam",
@@ -71,28 +71,27 @@ def get_bam_path(type, sample, progenitor):
         f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
         )
 
-
-# get eagle-rc input
-def get_bam_files(type, sample):
+def get_sorted_bams(type, sample, progenitor):
 
     if type=="RNA":
-        #bam_files = {}
-        #for progenitor in PROGENITORS:
-        #    bam_files[progenitor] = f"results/star/{sample}/{sample}_{progenitor}_aligned.bam"
+        return f"results/star/{sample}/{sample}_{progenitor}_aligned_sorted.bam",
 
-        #return(bam_files)
-        return {progenitor:f"results/star/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
-
-    elif type=="DNA": # Unknown yet
-        return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    #elif type=="DNA": # Unknown yet
+        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
     
     elif type=="WGBS": 
-        return {progenitor:f"results/bismark/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+        return f"results/bismark/{sample}/{sample}_{progenitor}_aligned_sorted.bam",
 
     else:
         sys.exit(
         f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
         )
+
+# get eagle-rc input
+def get_both_bams(aligner, sample):
+
+    return {progenitor:f"results/{aligner}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+
 
 # get eagle-rc output
 def get_eagle_output(sample):

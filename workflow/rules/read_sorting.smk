@@ -43,7 +43,7 @@ rule install_eagle:
 
 rule read_sorting:
     input:
-        unpack(lambda wildcards: get_bam_files(DATA_TYPE, wildcards.sample)),
+        unpack(lambda wildcards: get_both_bams(ALIGNER, wildcards.sample)),
         eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
         #genome1="results/star/{sample}/{sample}_genome1_aligned.bam",
         #genome2="results/star/{sample}/{sample}_genome2_aligned.bam", 
