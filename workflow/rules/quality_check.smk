@@ -24,7 +24,6 @@ rule qualimap_rule:
     input:
         # BAM aligned, splicing-aware, to reference genome
         bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
-        #bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     output:
         directory("results/qualimap/{sample}/{progenitor}"),
     log:

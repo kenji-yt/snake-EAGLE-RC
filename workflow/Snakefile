@@ -22,7 +22,9 @@ if len(config) == 0:
 
 INPUT_DIR = os.path.normpath(config["INPUT"])
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
-if DATA_TYPE=="RNA":
+if DATA_TYPE=="DNA":
+    ALIGNER="bwa"
+elif DATA_TYPE=="RNA":
     ALIGNER="star"
 elif DATA_TYPE=="WGBS":
     ALIGNER="bismark"
@@ -81,8 +83,7 @@ wildcard_constraints: # limit the value of these wildcards to directory names
 
 ### Rules ###
 
-include: "rules/RNA_alignment.smk"
-include: "rules/WGBS_alignment.smk"
+include: "rules/alignment.smk"
 include: "rules/input_functions.smk"
 include: "rules/quality_check.smk"
 include: "rules/read_sorting.smk"

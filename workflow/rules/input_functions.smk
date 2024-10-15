@@ -1,9 +1,9 @@
 #### Input functions ####
 
 # get read input
-def get_read_files(type, sample):
+def get_read_files(sample):
 
-    if type=="RNA": 
+    if DATA_TYPE=="RNA": 
         if len(sample_files[sample]) == 2:
             return {
                 'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
@@ -14,7 +14,7 @@ def get_read_files(type, sample):
                 'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
             }
 
-    elif type=="WGBS":
+    elif DATA_TYPE=="WGBS":
         if len(sample_files[sample]) == 2:
             return {
                 'fq_1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
@@ -25,8 +25,13 @@ def get_read_files(type, sample):
                 'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
             }
 
-    #elif type=="DNA":
-        # TBD
+    elif DATA_TYPE=="DNA":
+        sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
+        files  = os.listdir(sample_dir)
+        file_path = [sample_dir] + [os.path.join(sample_dir, file) for file in files]
+        return {
+            'reads':file_path
+        }
 
 
 # get assembly
@@ -54,53 +59,10 @@ def get_assembly(progenitor):
     return fasta_files[0]
 
 
-# get qualimap input depending on data type
-def get_bam_files(type, sample, progenitor):
-
-    if type=="RNA":
-        return f"results/star/{sample}/{sample}_{progenitor}_aligned.bam",
-
-    #elif type=="DNA": # Unknown yet
-        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
-    
-    elif type=="WGBS": 
-        return f"results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",
-
-    else:
-        sys.exit(
-        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
-        )
-
-def get_sorted_bams(type, sample, progenitor):
-
-    if type=="RNA":
-        return f"results/star/{sample}/{sample}_{progenitor}_aligned_sorted.bam",
-
-    #elif type=="DNA": # Unknown yet
-        #return {progenitor:f"results/??????/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
-    
-    elif type=="WGBS": 
-        return f"results/bismark/{sample}/{sample}_{progenitor}_aligned_sorted.bam",
-
-    else:
-        sys.exit(
-        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
-        )
-
 # get eagle-rc input
-def get_both_bams(aligner, sample):
+def get_both_bams(sample):
 
-    return {progenitor:f"results/{aligner}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
-
-
-# get eagle-rc output
-def get_eagle_output(sample):
-    
-    output_ref_files = {}
-    for index, progenitor in enumerate(PROGENITORS):
-        output_ref_files[f"{progenitor}"] = f"results/eagle_rc/{sample}/{sample}_classified{index}.ref.bam"
-
-    return output_ref_files
+    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
 
 # get assembly
@@ -133,7 +95,7 @@ def get_assemblies(progenitors): # Here I still pass an argument because of prev
     return assembly_files
 
 
-def make_eagle_command(type, input, assemblies, params, output):
+def make_eagle_command(input, assemblies, params, output):
 
     command = f"{input['eagle_bin']} --ngi "
     
@@ -141,16 +103,33 @@ def make_eagle_command(type, input, assemblies, params, output):
         command += "--paired "
 
     for index, progenitor in enumerate(PROGENITORS):
-        command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={assemblies[progenitor]} " 
+        command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={input[progenitor]} " 
 
     command += f"-o {params['output_prefix']} "
-
-    if type=="WGBS":
+    
+    if DATA_TYPE=="WGBS":
         command += "--bs=3 "
     
     command += f"> {output['reads_list']}"
 
     return command
+
+
+
+def make_rename_command(sample):
+
+    command=""
+
+    for index, progenitor in enumerate(PROGENITORS):
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam && "
+    
+    command = command.rstrip(' && ')
+
+    return command
+
 
 
 # Muli QC input
@@ -165,17 +144,16 @@ def multiqc_input(type):
     input.extend(
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
-    
-    input.extend(
-            expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
-        )
-
-    #input.extend( # Later I must ask this
-    #        expand("results/eagle_rc/{sample}/{sample}_{progenitor}.ref.bam", sample=SAMPLES, progenitor=PROGENITORS)     
-    #)
 
     if type=="WGBS":
-        "Something about conversion"
+        input.extend(
+                expand("results/logs/eagle_rc/renaming/{sample}.log", sample=SAMPLES)     
+            )
+        #"Something about conversion"
+    else:
+        input.extend(
+                expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
+            )
 
     return input
 

@@ -43,7 +43,7 @@ rule install_eagle:
 
 rule read_sorting:
     input:
-        unpack(lambda wildcards: get_both_bams(ALIGNER, wildcards.sample)),
+        unpack(lambda wildcards: get_both_bams(wildcards.sample)),
         eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
         #genome1="results/star/{sample}/{sample}_genome1_aligned.bam",
         #genome2="results/star/{sample}/{sample}_genome2_aligned.bam", 
@@ -66,11 +66,23 @@ rule read_sorting:
         #    :-1
         #],
     run:
-        command=make_eagle_command(DATA_TYPE, input, params.assemblies, params, output)
+        command=make_eagle_command(input, params.assemblies, params, output)
         shell(command)
         #"{input.eagle_bin} --ngi --paired --ref1={params.genome1} --bam1={input.reads1} --ref2={params.genome2} --bam2={input.reads2} -o {params.output} --bs=3 > {params.list}"
 
 
-#rule rename_sorted_reads: 
+rule rename_sorted_reads: 
+    input:
+        reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
+    #output:
+    #    ref="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam"
+    #    alt="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam"
+    log:
+        "results/logs/eagle_rc/renaming/{sample}.log",
+    run:
+        command=make_rename_command(wildcards.sample)
+        shell(command)
+
+
 # SOME RULE TO CHANGE the numbers to actual genome assignment. 
     

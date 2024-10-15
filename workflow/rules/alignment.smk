@@ -1,9 +1,43 @@
-# WGBS alignment with Bismark
+##########################
+# DNA alignment with BWA #
+##########################
 
+rule bwa_mem:
+    input:
+        unpack(lambda wildcards: get_read_files(wildcards.sample)),
+        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+    output:
+        "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
+    log:
+        "results/logs/bwa/{sample}.log",
+    params:
+        #extra=r"-R '@RG\tID:{sample}\tSM:{sample}'",
+        #sorting="none",  # Can be 'none', 'samtools' or 'picard'.
+        #sort_order="queryname",  # Can be 'queryname' or 'coordinate'.
+        #sort_extra="",  # Extra args for samtools/picard.
+    threads: workflow.cores
+    wrapper:
+        "v4.7.1/bio/bwa/mem"
+
+
+rule bwa_index:
+    input:
+        lambda wildcards: get_assembly(wildcards.progenitor),
+    output:
+        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+    log:
+        "results/logs/bwa/index/{genome}.log",
+    wrapper:
+        "v4.7.1/bio/bwa/index"
+
+
+###############################
+# WGBS alignment with Bismark #
+###############################
 
 rule bismark_alignment:
     input:
-        unpack(lambda wildcards: get_read_files(DATA_TYPE, wildcards.sample)),
+        unpack(lambda wildcards: get_read_files(wildcards.sample)),
         genome=lambda wildcards: get_assembly(wildcards.progenitor),
         bismark_indexes_dir=f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome",
         #genomic_freq="indexes/{genome}/genomic_nucleotide_frequencies.txt"
@@ -41,6 +75,7 @@ rule bismark_alignment:
         "v4.7.1/bio/bismark/bismark"
 
 
+
 rule bismark_genome_preparation_fa:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
@@ -52,4 +87,45 @@ rule bismark_genome_preparation_fa:
         ""  # optional params string
     wrapper:
         "v4.7.1/bio/bismark/bismark_genome_preparation"
+
+
+###########################
+# RNA alignment with STAR #
+###########################
+
+rule star_alignment:
+    input:
+        unpack(lambda wildcards: get_read_files(wildcards.sample)),
+        idx = "results/star/{progenitor}",
+        
+    output:
+        # see STAR manual for additional output files
+        aln="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
+        #log="results/star/{{sample}}/1_Log.out",#???
+        #sj="results/star/{{sample}}/1_SJ.out.tab",#???
+    log:
+        "results/logs/star/aligment/{sample}_{progenitor}.log",
+    message:
+        "Aligning RNA seq data with STAR."
+    params:
+        # optional parameters
+        extra=f"--outSAMtype BAM SortedByCoordinate",
+    threads: workflow.cores
+    wrapper:
+        "v4.0.0/bio/star/align"
+
+
+
+rule star_index_genomes:
+    input:
+        fasta = lambda wildcards: get_assembly(wildcards.progenitor)
+    output:
+        idx = directory("results/star/{progenitor}"),
+    message:
+        "Indexing reference genome with STAR."
+    threads: workflow.cores
+    log:
+        "results/logs/star/index/{progenitor}.log",
+    wrapper:
+        "v4.0.0/bio/star/index"
         
