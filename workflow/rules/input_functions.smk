@@ -28,7 +28,7 @@ def get_read_files(sample):
     elif DATA_TYPE=="DNA":
         sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
         files  = os.listdir(sample_dir)
-        file_path = [sample_dir] + [os.path.join(sample_dir, file) for file in files]
+        file_path = [os.path.join(sample_dir, file) for file in files]
         return {
             'reads':file_path
         }

@@ -5,11 +5,11 @@
 rule bwa_mem:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
     output:
         "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
-        "results/logs/bwa/{sample}.log",
+        "results/logs/bwa/alignment/{sample}_{progenitor}.log",
     params:
         #extra=r"-R '@RG\tID:{sample}\tSM:{sample}'",
         #sorting="none",  # Can be 'none', 'samtools' or 'picard'.
@@ -24,9 +24,9 @@ rule bwa_index:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
     output:
-        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:
-        "results/logs/bwa/index/{genome}.log",
+        "results/logs/bwa/index/{progenitor}.log",
     wrapper:
         "v4.7.1/bio/bwa/index"
 
@@ -69,7 +69,7 @@ rule bismark_alignment:
         # -p: bowtie2 parallel execution
         # --multicore: bismark parallel execution
         # --temp_dir: tmp dir for intermediate files instead of output directory
-        #extra=' --ambiguous --unmapped --nucleotide_coverage',
+        extra='--multicore: {workflow.cores}'  #' --ambiguous --unmapped --nucleotide_coverage',
         basename='{sample}_{progenitor}' # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
     wrapper:
         "v4.7.1/bio/bismark/bismark"

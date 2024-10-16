@@ -4,7 +4,9 @@
 [![GitHub actions status](https://github.com/<owner>/<repo>/workflows/Tests/badge.svg?branch=main)](https://github.com/<owner>/<repo>/actions?query=branch%3Amain+workflow%3ATests)
 
 
-A Snakemake workflow for `<description>`
+A Snakemake workflow around the eagle-RC tool. The purpose of this workflow is to facilitate the use of [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=readme-ov-file#eagle-rc). 
+"EAGLE-RC is a method for classifying whether a read belongs to one genomic hypothesis or another, given a set of genotype differences between them. This can be applicable for determining if reads originate from a specific allele or from a specific homeolog in allopolyploids."
+
 
 
 ## Usage
