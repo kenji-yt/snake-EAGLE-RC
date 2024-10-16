@@ -1,12 +1,12 @@
 name: build_eagle
 channels:
   - conda-forge
-dependencies: # Trying another way. 
+dependencies: 
   - git=2.45.2
   - make=4.2.1
-  #- autoconf=2.69
-  #- zlib=1.2.11
-  #- libcurl=7.65.3
-  #- openssl=1.1.1d
-  #- backports.lzma=0.0.14
-  #- gcc_linux-64=7.3.0
+  - autoconf=2.69
+  - zlib=1.2.11
+  - libcurl=7.65.3
+  - openssl=1.1.1d
+  - backports.lzma=0.0.14
+  - gcc_linux-64=7.3.0
