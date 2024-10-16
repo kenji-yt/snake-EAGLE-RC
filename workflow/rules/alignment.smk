@@ -69,7 +69,7 @@ rule bismark_alignment:
         # -p: bowtie2 parallel execution
         # --multicore: bismark parallel execution
         # --temp_dir: tmp dir for intermediate files instead of output directory
-        extra='--multicore: {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
+        extra=f'--multicore {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
         basename='{sample}_{progenitor}' # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
     wrapper:
         "v4.7.1/bio/bismark/bismark"
