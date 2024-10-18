@@ -13,6 +13,10 @@ A Snakemake workflow around the eagle-RC tool. The purpose of this workflow is t
 
 The tool offers a minimal amount of filtering post alignment but it is not very flexible in that regard. If you would rather do it yourself and just use the read sorting tool, just create the "results/star" (or/and bismark or XXX depending on data type) directory in the snake-EAGLE-RC directory and add your aligned reads. 
 
+Some rules will automatically determine memory usage but you can set max resources 'snakemake --resources mem_mb=200'.
+
+
+
 # TODO
 
 * Replace `<owner>` and `<repo>` everywhere in the template (also under .github/workflows) with the correct `<repo>` name and owning user or organization.

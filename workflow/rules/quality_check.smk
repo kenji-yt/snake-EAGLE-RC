@@ -20,6 +20,7 @@ rule fastqc:
 ## Qualimap rules ##
 ###################
 
+### There is a RNA seq qualimap...
 rule qualimap_rule:
     input:
         # BAM aligned, splicing-aware, to reference genome
@@ -28,8 +29,10 @@ rule qualimap_rule:
         directory("results/qualimap/{sample}/{progenitor}"),
     log:
         "results/logs/qualimap/{sample}/{progenitor}.log",
-    #params:
-        #extra=f"-nt {workflow.cores}",
+    resources:
+        mem_mb=lambda wildcard, input: input.size_mb+1000
+    params:
+        extra=f"-n {workflow.cores}",
     wrapper:
         "v2.3.2/bio/qualimap/bamqc"
 
@@ -48,7 +51,7 @@ rule sort_bams:
     #params:
         #extra=f"-nt {workflow.cores}",
     shell:
-        "samtools sort {input.bam} > {output.bam}"
+        "samtools sort -@ {workflow.cores} {input.bam} > {output.bam}"
 
 
 ###################
