@@ -65,13 +65,14 @@ The outputs will now be generated in a results directory within the snake-EAGLE-
 #### Memory allocation
 Some steps in the analysis will automatically determine how much memory they will request. You can set maximal resource allocation using the flag:
 ```
-snakemake --resources mem_mb='max_memory' <other flags>
+snakemake --resources mem_mb='max_memory' 
 ```
 With 'max_memory' replaced by the maximal amount of memory you wish the run to use in megabyte. 
-Make sure to add all other flags shown above. 
+Make sure to also add the other flags shown above. 
 
 #### Quick Quality Check
 If you want to use the workflow to automatically verify the quality of the input data for all samples you can run only the fastqc step:
 ```
-snakemake --rule fastqc <other flags> 
+snakemake --rule fastqc 
 ```
+Make sure to also add the other flags shown above. 
