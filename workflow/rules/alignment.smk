@@ -10,7 +10,7 @@ rule bwa_mem:
         "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
-    params:
+    #params:
         #extra=r"-R '@RG\tID:{sample}\tSM:{sample}'",
         #sorting="none",  # Can be 'none', 'samtools' or 'picard'.
         #sort_order="queryname",  # Can be 'queryname' or 'coordinate'.
@@ -53,6 +53,7 @@ rule bismark_alignment:
         
     log:
         "results/logs/bismark/alignment/{sample}_{progenitor}.log"
+    threads: workflow.cores
     params:
         # optional params string, e.g: -L32 -N0 -X400 --gzip
         # Useful options to tune:
@@ -69,7 +70,7 @@ rule bismark_alignment:
         # -p: bowtie2 parallel execution
         # --multicore: bismark parallel execution
         # --temp_dir: tmp dir for intermediate files instead of output directory
-        #extra=f'--multicore {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
+        extra=f'--multicore {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
         basename='{sample}_{progenitor}' # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
     wrapper:
         "v4.7.1/bio/bismark/bismark"
@@ -83,8 +84,6 @@ rule bismark_genome_preparation_fa:
         directory(f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome")
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
-    params:
-        ""  # optional params string
     wrapper:
         "v4.7.1/bio/bismark/bismark_genome_preparation"
 

@@ -16,9 +16,9 @@ rule fastqc:
          "v4.0.0/bio/fastqc"
 
 
-###################
+####################
 ## Qualimap rules ##
-###################
+####################
 
 ### There is a RNA seq qualimap...
 rule qualimap_rule:
@@ -31,8 +31,9 @@ rule qualimap_rule:
         "results/logs/qualimap/{sample}/{progenitor}.log",
     resources:
         mem_mb=lambda wildcard, input: input.size_mb+1000
+    threads: workflow.cores 
     params:
-        extra=f"-n {workflow.cores}",
+        extra=f"-nt {workflow.cores}",
     wrapper:
         "v2.3.2/bio/qualimap/bamqc"
 
@@ -48,10 +49,9 @@ rule sort_bams:
         "results/logs/qualimap/sorting/{sample}/{progenitor}.log",
     conda:
         "../envs/samtools.yaml"
-    #params:
-        #extra=f"-nt {workflow.cores}",
+    threads: workflow.cores # adding here so snakemake knows how much this rule uses (idk if necessary)
     shell:
-        "samtools sort -@ {workflow.cores} {input.bam} > {output.bam}"
+        "samtools sort -T .temp -@ {threads} {input.bam} > {output.bam}"
 
 
 ###################
