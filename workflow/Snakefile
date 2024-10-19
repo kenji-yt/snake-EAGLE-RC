@@ -90,4 +90,14 @@ include: "rules/read_sorting.smk"
 
 rule all:
     input:
-        "results/MultiQC/multiqc_report.html"
+        "results/reproducibility_report.txt"
+
+rule make_reproducibility_report:
+    input:
+        input_dir=f"{INPUT_DIR}",
+        multi_qc="results/MultiQC/multiqc_report.html"
+    output:
+        "results/reproducibility_report.txt"
+    threads: workflow.cores
+    shell:
+        "bash workflow/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"

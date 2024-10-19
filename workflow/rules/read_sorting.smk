@@ -83,6 +83,5 @@ rule rename_sorted_reads:
         command=make_rename_command(wildcards.sample)
         shell(command)
 
-
 # SOME RULE TO CHANGE the numbers to actual genome assignment. 
     

@@ -13,7 +13,7 @@ rule fastqc:
     log:
         "results/logs/fastqc/{read_file}.log",
     wrapper:
-         "v4.0.0/bio/fastqc"
+        "v4.7.2/bio/fastqc"
 
 
 ####################
@@ -35,7 +35,7 @@ rule qualimap_rule:
     params:
         extra=f"-nt {workflow.cores}",
     wrapper:
-        "v2.3.2/bio/qualimap/bamqc"
+       "v4.7.2/bio/qualimap/bamqc"
 
 
 rule sort_bams:

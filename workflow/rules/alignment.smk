@@ -17,18 +17,22 @@ rule bwa_mem:
         #sort_extra="",  # Extra args for samtools/picard.
     threads: workflow.cores
     wrapper:
-        "v4.7.1/bio/bwa/mem"
+        "v4.7.2/bio/bwa-mem2/mem"
 
 
 rule bwa_index:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
     output:
-        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.0123",
+        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.amb",
+        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.ann",
+        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.bwt.2bit.64",
+        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.pac",
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
-        "v4.7.1/bio/bwa/index"
+        "v4.7.2/bio/bwa-mem2/index"
 
 
 ###############################
@@ -53,7 +57,7 @@ rule bismark_alignment:
         
     log:
         "results/logs/bismark/alignment/{sample}_{progenitor}.log"
-    threads: workflow.cores
+    #threads: workflow.cores
     params:
         # optional params string, e.g: -L32 -N0 -X400 --gzip
         # Useful options to tune:
@@ -70,10 +74,10 @@ rule bismark_alignment:
         # -p: bowtie2 parallel execution
         # --multicore: bismark parallel execution
         # --temp_dir: tmp dir for intermediate files instead of output directory
-        extra=f'--multicore {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
+        #extra=f'--multicore {workflow.cores}',  #' --ambiguous --unmapped --nucleotide_coverage',
         basename='{sample}_{progenitor}' # NOTE MAYBE THE "pe" or "se" is required in the output definition since working only with basename here. 
     wrapper:
-        "v4.7.1/bio/bismark/bismark"
+        "v4.7.2/bio/bismark/bismark"
 
 
 
@@ -85,7 +89,7 @@ rule bismark_genome_preparation_fa:
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
     wrapper:
-        "v4.7.1/bio/bismark/bismark_genome_preparation"
+        "v4.7.2/bio/bismark/bismark_genome_preparation"
 
 
 ###########################
@@ -111,7 +115,7 @@ rule star_alignment:
         extra=f"--outSAMtype BAM SortedByCoordinate",
     threads: workflow.cores
     wrapper:
-        "v4.0.0/bio/star/align"
+        "v4.7.2/bio/star/align"
 
 
 
@@ -126,5 +130,5 @@ rule star_index_genomes:
     log:
         "results/logs/star/index/{progenitor}.log",
     wrapper:
-        "v4.0.0/bio/star/index"
+        "v4.7.2/bio/star/index"
         
