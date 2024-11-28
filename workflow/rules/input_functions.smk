@@ -118,13 +118,16 @@ def make_eagle_command(input, assemblies, params, output):
 
 def make_rename_command(sample):
 
+    with open("results/logs/eagle_rc/renaming/{sample}.log", "w") as file:
+        pass
+
     command=""
 
     for index, progenitor in enumerate(PROGENITORS):
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
     
     command = command.rstrip(' && ')
 
@@ -144,16 +147,16 @@ def multiqc_input(type):
     input.extend(
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
-
-    if type=="WGBS":
-        input.extend(
-                expand("results/logs/eagle_rc/renaming/{sample}.log", sample=SAMPLES)     
-            )
-        #"Something about conversion"
-    else:
-        input.extend(
-                expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
-            )
+    
+    #input.extend(
+    #        expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
+    #    )
+    #input.extend(
+    #        expand("results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam", sample=SAMPLES, progenitor=PROGENITORS)     
+    #    )
+    input.extend(
+            expand("results/logs/eagle_rc/renaming/{sample}.log", sample=SAMPLES)     
+        )
 
     return input
 

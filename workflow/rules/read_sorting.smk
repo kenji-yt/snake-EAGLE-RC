@@ -74,14 +74,11 @@ rule read_sorting:
 rule rename_sorted_reads: 
     input:
         reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
-    #output:
-    #    ref="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam"
-    #    alt="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam"
-    log:
-        "results/logs/eagle_rc/renaming/{sample}.log",
+    output:
+        #ref="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam",
+        #alt="results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam",
+    #log:
+        log="results/logs/eagle_rc/renaming/{sample}.log",
     run:
         command=make_rename_command(wildcards.sample)
         shell(command)
-
-# SOME RULE TO CHANGE the numbers to actual genome assignment. 
-    
