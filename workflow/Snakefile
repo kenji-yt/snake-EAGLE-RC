@@ -100,4 +100,4 @@ rule make_reproducibility_report:
         "results/reproducibility_report.txt"
     threads: workflow.cores
     shell:
-        "bash workflow/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
+        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
