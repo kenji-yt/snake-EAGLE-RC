@@ -18,7 +18,7 @@ This workflow (snake-EAGLE-RC) is made to facilitate the read sorting process. I
 - [install Snakemake via Conda](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html).
 - git clone snake-EAGLE-RC: 
 ```
-git clone git@github.com:kenji-yt/snake-EAGLE-RC.git
+git clone https://github.com/kenji-yt/snake-EAGLE-RC.git
 ```
 
 ## Input 
