@@ -23,7 +23,6 @@ rule fastqc:
 ### There is a RNA seq qualimap...
 rule qualimap_rule:
     input:
-        # BAM aligned, splicing-aware, to reference genome
         bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
     output:
         directory("results/qualimap/{sample}/{progenitor}"),
@@ -40,9 +39,7 @@ rule qualimap_rule:
 
 rule sort_bams:
     input:
-        # BAM aligned, splicing-aware, to reference genome
         bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned.bam",
-        #bam="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     output:
         bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
     log:

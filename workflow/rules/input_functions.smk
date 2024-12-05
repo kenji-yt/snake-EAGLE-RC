@@ -148,12 +148,6 @@ def multiqc_input(type):
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
     
-    #input.extend(
-    #        expand("results/eagle_rc/{sample}/{sample}_classified_reads.list", sample=SAMPLES)     
-    #    )
-    #input.extend(
-    #        expand("results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam", sample=SAMPLES, progenitor=PROGENITORS)     
-    #    )
     input.extend(
             expand("results/logs/eagle_rc/renaming/{sample}.log", sample=SAMPLES)     
         )
