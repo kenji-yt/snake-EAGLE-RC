@@ -45,7 +45,7 @@ rule bismark_alignment:
         
     log:
         "results/logs/bismark/alignment/{sample}_{progenitor}.log"
-    threads: 5 # Should be the maximal usage for the alignment. See: 
+    threads: 5 # Should be the maximal usage for the alignment. See: https://github.com/FelixKrueger/Bismark/issues/706
     params:
         basename='{sample}_{progenitor}' 
     wrapper:

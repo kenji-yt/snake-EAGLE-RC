@@ -1,4 +1,4 @@
-name: build_eagle
+name: build_eagle 
 channels:
   - conda-forge
 dependencies: 
