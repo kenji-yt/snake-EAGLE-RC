@@ -17,7 +17,6 @@ echo "Run date & time: ${CURRENT_DATETIME}" >> "${report}"
 echo "Number of allocated cores: ${n_cores}" >> "${report}" 
 echo "" >> "${report}"
 echo "" >> "${report}"
-echo "" >> "${report}"
 echo "**************" >> "${report}"
 echo "* INPUT DATA *" >> "${report}"
 echo "**************" >> "${report}"
@@ -52,6 +51,13 @@ echo "*********" >> "${report}"
 echo "" >> "${report}"
 echo "" >> "${report}"
 
+
+version_snake_eagle_rc=$(git describe --tags --abbrev=0 | sed 's/v//g')
+echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
+
+eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed '/v//g')
+echo "eagle-rc=${eagle_version}"
+
 echo "fastqc=0.12.1" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "star=2.7.11b" >> "${report}"
@@ -65,7 +71,6 @@ echo $(grep 'samtools' workflow/envs/samtools.yaml | sed 's/- s/s/g') >> "${repo
 echo $(grep 'git' workflow/envs/build_eagle.yaml | sed 's/- s/s/g') >> "${report}"
 echo $(grep 'make' workflow/envs/build_eagle.yaml | sed 's/- s/s/g') >> "${report}"  
 echo "qualimap=2.3" >> "${report}"
-echo "eagle-rc=<git cloned on $(ls -lt results/eagle_rc/eagle_intallation/.git/description | awk '{print $6, $7, $8}')>" >> "${report}"
 echo "snakemake wrappers release=4.7.2" >> "${report}"
 echo "" >> "${report}"
 echo "" >> "${report}"
