@@ -5,25 +5,41 @@ def get_read_files(sample):
 
     if DATA_TYPE=="RNA": 
         if len(sample_files[sample]) == 2:
+            fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+            fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+            if "_R1" in sample_files[sample][0]:
+                return {'fq1': fq1_path, 'fq2': fq2_path}
+            elif "_R1" in sample_files[sample][1]:
+                return {'fq1': fq2_path, 'fq2': fq1_path}
+            else:
+                error_msg = f"Error: Could not determine read pair assignment for sample {sample}. Make sure the read files contain '_R1' and '_R2' in their names."
+                raise ValueError(error_msg)
+        elif len(sample_files[sample]) == 1:
             return {
-                'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
-                'fq2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+                    'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
             }
         else:
-            return {
-                'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            }
+            error_msg = f"Error: Either more than two or zero read files for sample {sample}."
+            raise ValueError(error_msg)
 
     elif DATA_TYPE=="WGBS":
         if len(sample_files[sample]) == 2:
+            fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+            fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+            if "_R1" in sample_files[sample][0]:
+                return {'fq_1': fq1_path, 'fq_2': fq2_path}
+            elif "_R1" in sample_files[sample][1]:
+                return {'fq_1': fq2_path, 'fq_2': fq1_path}
+            else:
+                error_msg = f"Error: Could not determine read pair assignment for sample {sample}. Make sure the read files contain '_R1' and '_R2' in their names."
+                raise ValueError(error_msg)
+        elif len(sample_files[sample]) == 1:
             return {
-                'fq_1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}",
-                'fq_2':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+                    'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
             }
         else:
-            return {
-                'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            }
+            error_msg = f"Error: Either more than two or zero read files for sample {sample}."
+            raise ValueError(error_msg)        
 
     elif DATA_TYPE=="DNA":
         sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
@@ -60,7 +76,7 @@ def get_assembly(progenitor):
 
 
 # get eagle-rc input
-def get_both_bams(sample):
+def get_all_bams(sample):
 
     return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 

@@ -18,7 +18,7 @@ rule install_eagle:
 
 rule read_sorting:
     input:
-        unpack(lambda wildcards: get_both_bams(wildcards.sample)),
+        unpack(lambda wildcards: get_all_bams(wildcards.sample)),
         eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
     output:
         reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
