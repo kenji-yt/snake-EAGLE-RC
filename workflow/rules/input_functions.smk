@@ -75,10 +75,11 @@ def get_assembly(progenitor):
     return fasta_files[0]
 
 
-# get eagle-rc input
-def get_all_bams(sample):
 
-    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+# get eagle-rc input
+def get_renamed_bams(sample):
+
+    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed.bam" for progenitor in PROGENITORS}
 
 
 # get assembly
@@ -113,22 +114,28 @@ def get_assemblies(progenitors): # Here I still pass an argument because of prev
 
 def make_eagle_command(input, assemblies, params, output):
 
-    command = f"{input['eagle_bin']} --ngi "
-    
-    if len(sample_files[sample]) == 2:
-        command += "--paired "
+    if len(PROGENITORS) == 2:
 
-    for index, progenitor in enumerate(PROGENITORS):
-        command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={input[progenitor]} " 
+        command = f"{input['eagle_bin']} --ngi "
+        
+        if len(sample_files[sample]) == 2:
+            command += "--paired "
 
-    command += f"-o {params['output_prefix']} "
-    
-    if DATA_TYPE=="WGBS":
-        command += "--bs=3 "
-    
-    command += f"> {output['reads_list']}"
+        for index, progenitor in enumerate(PROGENITORS):
+            command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={input[progenitor]} " 
 
-    return command
+        command += f"-o {params['output_prefix']} "
+        
+        if DATA_TYPE=="WGBS":
+            command += "--bs=3 "
+
+        # Maybe add:
+        #if DATA_TYPE=="RNA":
+        #    command += "--splice "
+        
+        command += f"> {output['reads_list']}"
+
+        return command
 
 
 

@@ -16,9 +16,28 @@ rule install_eagle:
         """
 
 
+rule rename_chromosomes:
+    input:
+        original_bam="results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam",
+    output:
+        original_header="results/{ALIGNER}/{sample}/{sample}_{progenitor}_original_header.sam",
+        renamed_header="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed_header.sam",
+        renamed_bam="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed.bam",
+    log:
+        "results/logs/eagle_rc/renaming/{sample}_{progenitor}.log", 
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        """
+        samtools view -H {input.original_bam} > {output.original_header}
+        sed '/^@SQ/ s/SN:/SN:{wildcards.progenitor}_/' {output.renamed_header} > {output.renamed_header}
+        samtools reheader {output.renamed_header} {input.original_bam} > {output.renamed_bam}
+        """
+
+
 rule read_sorting:
     input:
-        unpack(lambda wildcards: get_all_bams(wildcards.sample)),
+        unpack(lambda wildcards: get_renamed_bams(wildcards.sample)),
         eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
     output:
         reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
@@ -32,7 +51,17 @@ rule read_sorting:
         shell(command)
 
 
-rule rename_sorted_reads: 
+#rule rename_chromosome_sorted_bams: 
+#    input:
+#        reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
+#    output:
+#        log="results/logs/eagle_rc/renaming/{sample}.log",
+#    run:
+#        command=make_rename_command(wildcards.sample)
+#        shell(command)
+
+
+rule change_sorted_bam_filenames: 
     input:
         reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
     output:
