@@ -63,14 +63,12 @@ def get_assembly(progenitor):
         fasta_files.extend(glob.glob(os.path.join(path, extension)))
 
     if len(fasta_files) > 1:
-        sys.exit(
-        f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
-        )
+        error_msg=f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
+        raise ValueError(error_msg)
     
     elif len(fasta_files) == 0:
-        sys.exit(
-        f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
-        )
+        error_msg=f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
+        raise ValueError(error_msg)
 
     return fasta_files[0]
 
@@ -98,14 +96,12 @@ def get_assemblies(progenitors): # Here I still pass an argument because of prev
             fasta_files.extend(glob.glob(os.path.join(path, extension)))
 
         if len(fasta_files) > 1:
-            sys.exit(
-            f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
-            )
+            error_msg=f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
+            raise ValueError(error_msg)
     
         elif len(fasta_files) == 0:
-            sys.exit(
-            f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
-            )
+            error_msg=f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
+            raise ValueError(error_msg)
 
         assembly_files[progenitor] = fasta_files[0]
 
@@ -116,10 +112,11 @@ def make_eagle_command(input, assemblies, params, output):
 
     if len(PROGENITORS) == 2:
 
-        command = f"{input['eagle_bin']} --ngi "
+        command = f"{input['eagle_installation']}/eagle-rc --ngi "
         
         if len(sample_files[sample]) == 2:
             command += "--paired "
+
 
         for index, progenitor in enumerate(PROGENITORS):
             command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={input[progenitor]} " 
@@ -135,7 +132,56 @@ def make_eagle_command(input, assemblies, params, output):
         
         command += f"> {output['reads_list']}"
 
-        return command
+        return [command]
+
+    elif len(PROGENITORS) == 3:
+
+        commands = []
+        for i in range(len(PROGENITORS)):
+            for j in range(i + 1, len(PROGENITORS)):
+                commands.append(
+                    f"{input['eagle_installation']}/eagle-rc --ngi --listonly \
+                    --ref1={assemblies[PROGENITORS[i]]} --bam1={input[PROGENITORS[i]]} \
+                    --ref2={assemblies[PROGENITORS[j]]} --bam2={input[PROGENITORS[j]]} \
+                    > {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list"
+                )
+
+        if len(sample_files[sample]) == 2:
+            pe_flag = "--pe"
+        else:
+            pe_flag =""
+
+        # The script calles the three genomes A, B and D; hence this notation here. 
+        commands.append(
+                    f"python {input['eagle_installation']}/scripts/ref3_ngi_consensus.py \
+                    {pe_flag} -u -d -o {params['output_hexa']} \
+                    -AB {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[1]}.list \
+                    -AD {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[2]}.list \
+                    -BD {params['output_hexa']}_{PROGENITORS[1]}vs_{PROGENITORS[2]}.list")
+
+        commands.append(
+            f"{input['eagle_installation']}/eagle-rc \
+            --refonly --readlist -a {input[PROGENITORS[0]]} \
+            -o {params['output_prefix']}_{PROGENITORS[0]} {params['output_hexa']}.chrA.list"
+        )
+
+        commands.append(
+            f"{input['eagle_installation']}/eagle-rc \
+            --refonly --readlist -a {input[PROGENITORS[1]]} \
+            -o {params['output_prefix']}_{PROGENITORS[1]} {params['output_hexa']}.chrB.list"
+        )
+
+        commands.append(
+            f"{input['eagle_installation']}/eagle-rc \
+            --refonly --readlist -a {input[PROGENITORS[2]]} \
+            -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list"
+        )
+
+        return commands
+
+    else:
+        error_msg=f"ERROR: Wrong number of progenitors found. Only 2 and 3 allowed. Exiting..."
+        raise ValueError(error_msg)
 
 
 

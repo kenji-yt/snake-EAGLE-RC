@@ -13,9 +13,8 @@ import re
 
 if len(config) == 0:
     
-    sys.exit(
-        f"Please specify the path to the input directory with --config INPUT='path/to/input'."
-    )
+    error_msg=f"Please specify the path to the input directory with --config INPUT='path/to/input'."
+    raise ValueError(error_msg)
 
 
 ## Parse Input directory
@@ -29,9 +28,8 @@ elif DATA_TYPE=="RNA":
 elif DATA_TYPE=="WGBS":
     ALIGNER="bismark"
 else:
-    sys.exit(
-        f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
-        )
+    error_msg=f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
+    raise ValueError(error_msg)
 
 
 SAMPLES = [ sample for sample in os.listdir(f"{INPUT_DIR}/polyploids") if sample != "control_genome" ] # Control genome used in methylation data (!?)

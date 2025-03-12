@@ -38,17 +38,20 @@ rule rename_chromosomes:
 rule read_sorting:
     input:
         unpack(lambda wildcards: get_renamed_bams(wildcards.sample)),
-        eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
+        eagle_installation="results/eagle_rc/eagle_intallation",
     output:
         reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
     log:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
         assemblies=get_assemblies(PROGENITORS),
-        output_prefix="results/eagle_rc/{sample}/{sample}_classified", 
+        output_prefix="results/eagle_rc/{sample}/{sample}_classified",
+        output_hexa="results/eagle_rc/{sample}/{sample}" 
+    conda:
+        "../envs/hexaploid_sorting.yaml"
     run:
         command=make_eagle_command(input, params.assemblies, params, output)
-        shell(command)
+        shell(" && ".join(command))
 
 
 #rule rename_chromosome_sorted_bams: 
