@@ -130,7 +130,7 @@ def make_eagle_command(input, assemblies, params, output):
         #if DATA_TYPE=="RNA":
         #    command += "--splice "
         
-        command += f"> {output['reads_list']}"
+        command += f"> {params['output_prefix']}_reads.list"
 
         return [command]
 
@@ -183,6 +183,11 @@ def make_eagle_command(input, assemblies, params, output):
         error_msg=f"ERROR: Wrong number of progenitors found. Only 2 and 3 allowed. Exiting..."
         raise ValueError(error_msg)
 
+
+
+def get_sorted_bam(sample):
+
+    return {renamed_chr_sorted_bam:}
 
 
 def make_rename_command(sample):
