@@ -1,6 +1,6 @@
 rule install_eagle:
     output:
-        eagle_bin="results/eagle_rc/eagle_intallation/eagle-rc",
+        eagle_bin=directory("results/eagle_rc/eagle_intallation/"),
     log:
         "results/logs/eagle_rc/build_eagle.log",
     params:
@@ -24,13 +24,13 @@ rule rename_chromosomes:
         renamed_header="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed_header.sam",
         renamed_bam="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed.bam",
     log:
-        "results/logs/eagle_rc/renaming/{sample}_{progenitor}.log", 
+        "results/logs/{ALIGNER}/renaming/{sample}_{progenitor}.log", 
     conda:
         "../envs/samtools.yaml"
     shell:
         """
         samtools view -H {input.original_bam} > {output.original_header}
-        sed '/^@SQ/ s/SN:/SN:{wildcards.progenitor}_/' {output.renamed_header} > {output.renamed_header}
+        sed '/^@SQ/ s/SN:/SN:UNIQUENAME_{wildcards.progenitor})_UNIQUENAME_/' {output.original_header} > {output.renamed_header}
         samtools reheader {output.renamed_header} {input.original_bam} > {output.renamed_bam}
         """
 
@@ -45,39 +45,42 @@ rule read_sorting:
         assemblies=get_assemblies(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}" 
-    conda:
-        "../envs/hexaploid_sorting.yaml"
     run:
         command=make_eagle_command(input, params.assemblies, params, output)
         shell(" && ".join(command))
 
 
-rule restore_chromosome_names_sorted_bams: 
-    input:
-        renamed_chr_sorted_bam=
-        log="results/logs/eagle_rc/sorting/{sample}.log",
-    output:
-        original_chr_name_sorted_bam=
-    log:
-        "results/logs/eagle_rc/restoring_chr_names/{sample}.log",
-    params:
-        ref_chromosomes=
-        sorted_ref_bam_prefix="results/eagle_rc/{sample}/{sample}",
-    conda:
-        "../envs/samtools.yaml"
-    run:
-        """
-        samtools view -H {input.original_bam} > {output.original_header}
-        sed '/^@SQ/ s/SN:/SN:{wildcards.progenitor}_/' {output.renamed_header} > {output.renamed_header}
-        samtools reheader {output.renamed_header} {input.original_bam} > {output.renamed_bam}
-        """
-
-
 rule change_sorted_bam_filenames: 
     input:
-        reads_list="results/eagle_rc/{sample}/{sample}_classified_reads.list",
-    output:
-        log="results/logs/eagle_rc/renaming/{sample}.log",
+        log="results/logs/eagle_rc/sorting/{sample}.log",
+    log:
+        "results/logs/eagle_rc/renaming_files/{sample}.log",
     run:
         command=make_rename_command(wildcards.sample)
         shell(command)
+
+
+rule restore_chromosome_names_sorted_bams: 
+    input:
+        #bams=lambda wildcards: get_sorted_bams(wildcards.sample),
+        log="results/logs/eagle_rc/renaming_files/{sample}.log",
+    log:
+        "results/logs/eagle_rc/restoring_chr_names/{sample}.log",
+    conda:
+        "../envs/samtools.yaml"
+    shell:
+        """
+        bam_list=$(find results/eagle_rc/{sample}/tmp_renamed/ -name {sample}*.bam)
+        for bam in {input.bams}; do
+            bad_header=$(echo $bam | 's/.bam/_bad_header.sam/')
+            good_header=$(echo $bam | 's/.bam/_good_header.sam/')
+            outbam=$(echo $bam | sed 's|/tmp_renamed||')
+
+            samtools view -H $bam > $bad_header
+            sed '/^@SQ/ s/SN:UNIQUENAME_*_UNIQUENAME_/SN:/' $bad_header > $good_header
+            samtools reheader $good_header $bam > $outbam
+            rm $bam $good_header $bad_header
+        done
+
+        rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
+        """

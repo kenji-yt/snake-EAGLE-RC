@@ -185,27 +185,37 @@ def make_eagle_command(input, assemblies, params, output):
 
 
 
-def get_sorted_bam(sample):
-
-    return {renamed_chr_sorted_bam:}
-
-
 def make_rename_command(sample):
 
-    with open("results/logs/eagle_rc/renaming/{sample}.log", "w") as file:
-        pass
-
     command=""
+    if len(PROGENITORS) == 2:
 
-    for index, progenitor in enumerate(PROGENITORS):
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-        command += f"mv results/eagle_rc/{sample}/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+        for index, progenitor in enumerate(PROGENITORS):
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
     
-    command = command.rstrip(' && ')
+        command = command.rstrip(' && ')
+
+    elif(PROGENITORS) == 3:
+
+        command="echo Hexaploid: no renaming required."
 
     return command
+
+
+def get_sorted_bams(sample):
+    
+    pattern = f"results/eagle_rc/{sample}/tmp_renamed/{sample}*.bam"  # Adjust the directory if needed
+
+    bam_files = glob.glob(pattern)
+
+    if not bam_files:
+        error_msg=f"No BAM files found for sample {sample} in results/eagle_rc/{sample}/tmp_renamed."
+        raise ValueError(error_msg)
+
+    return bam_files  
 
 
 
@@ -223,7 +233,7 @@ def multiqc_input(type):
         )
     
     input.extend(
-            expand("results/logs/eagle_rc/renaming/{sample}.log", sample=SAMPLES)     
+            expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES)     
         )
 
     return input
