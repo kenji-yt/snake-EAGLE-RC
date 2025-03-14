@@ -17,7 +17,7 @@ rule rename_assemblies:
 rule bwa_mem:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        idx=multiext(f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext("results/bwa/{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
     output:
         "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
@@ -29,13 +29,13 @@ rule bwa_mem:
 
 rule bwa_index:
     input:
-        lambda wildcards: get_assembly(wildcards.progenitor),
+        "results/bwa/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.0123",
-        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.amb",
-        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.ann",
-        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.bwt.2bit.64",
-        f"{INPUT_DIR}/progenitors/"+"{progenitor}/{progenitor}.pac",
+        "results/bwa/{progenitor}/{progenitor}.0123",
+        "results/bwa/{progenitor}/{progenitor}.amb",
+        "results/bwa/{progenitor}/{progenitor}.ann",
+        "results/bwa/{progenitor}/{progenitor}.bwt.2bit.64",
+        "results/bwa/{progenitor}/{progenitor}.pac",
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
@@ -49,7 +49,7 @@ rule bwa_index:
 rule bismark_alignment:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        genome=lambda wildcards: get_assembly(wildcards.progenitor),
+        genome="results/bismark/{progenitor}/renamed_{progenitor}_assembly.fa",
         bismark_indexes_dir=f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome",
     output:
         bam="results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",  
@@ -67,9 +67,9 @@ rule bismark_alignment:
 
 rule bismark_genome_preparation_fa:
     input:
-        lambda wildcards: get_assembly(wildcards.progenitor),
+        "results/bismark/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        directory(f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome")
+        directory("results/bismark/{progenitor}/Bisulfite_Genome")
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
     wrapper:
@@ -83,7 +83,7 @@ rule bismark_genome_preparation_fa:
 rule star_alignment:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        idx = "results/star/{progenitor}",
+        idx = "results/star/{progenitor}/index",
         
     output:
         aln="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
@@ -101,9 +101,9 @@ rule star_alignment:
 
 rule star_index_genomes:
     input:
-        fasta = lambda wildcards: get_assembly(wildcards.progenitor)
+        fasta = "results/star/{progenitor}/renamed_{progenitor}_assembly.fa"
     output:
-        idx = directory("results/star/{progenitor}"),
+        idx = directory("results/star/{progenitor}/index"),
     message:
         "Indexing reference genome with STAR."
     threads: workflow.cores

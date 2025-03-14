@@ -1,5 +1,30 @@
 #### Input functions ####
 
+
+# get assembly
+def get_assembly(progenitor):
+    
+    path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
+
+    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
+
+    fasta_files = []
+
+    for extension in fasta_extensions:
+        fasta_files.extend(glob.glob(os.path.join(path, extension)))
+
+    if len(fasta_files) > 1:
+        error_msg=f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
+        raise ValueError(error_msg)
+    
+    elif len(fasta_files) == 0:
+        error_msg=f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
+        raise ValueError(error_msg)
+
+    return fasta_files[0]
+
+
+
 # get read input
 def get_read_files(sample):
 
@@ -83,30 +108,6 @@ def get_read_files(sample):
         return {
             'reads':file_path
         }
-
-
-# get assembly
-def get_assembly(progenitor):
-    
-    path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
-
-    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
-
-    fasta_files = []
-
-    for extension in fasta_extensions:
-        fasta_files.extend(glob.glob(os.path.join(path, extension)))
-
-    if len(fasta_files) > 1:
-        error_msg=f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
-        raise ValueError(error_msg)
-    
-    elif len(fasta_files) == 0:
-        error_msg=f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
-        raise ValueError(error_msg)
-
-    return fasta_files[0]
-
 
 
 # get eagle-rc input
