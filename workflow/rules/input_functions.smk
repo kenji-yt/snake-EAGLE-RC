@@ -75,9 +75,9 @@ def get_assembly(progenitor):
 
 
 # get eagle-rc input
-def get_renamed_bams(sample):
+def get_bams(sample):
 
-    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed.bam" for progenitor in PROGENITORS}
+    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
 
 # get assembly
@@ -109,6 +109,12 @@ def get_assemblies(progenitors): # Here I still pass an argument because of prev
 
 
 def make_eagle_command(input, assemblies, params, output):
+
+
+    output_directory = f"results/eagle_rc/{params['sample_name']}/tmp_renamed/"
+
+    if not os.path.isdir(output_directory):
+        os.makedirs(output_directory)
 
     if len(PROGENITORS) == 2:
 
@@ -191,10 +197,10 @@ def make_rename_command(sample):
     if len(PROGENITORS) == 2:
 
         for index, progenitor in enumerate(PROGENITORS):
-            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
-            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
+            command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
     
         command = command.rstrip(' && ')
 

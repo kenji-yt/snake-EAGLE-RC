@@ -1,3 +1,15 @@
+rule rename_assemblies:
+    input:
+        lambda wildcards: get_assembly(wildcards.progenitor),
+    output:
+        f"results/{ALIGNER}"+"/{progenitor}/renamed_{progenitor}_assembly.fa"
+    log:
+        "results/logs/assembly_renaming/{progenitor}.log"
+    shell:
+        """
+        sed 's/^>/>UNIQUENAME_{wildcards.progenitor}_UNIQUENAME_/' {input} > {output}
+        """
+
 ##########################
 # DNA alignment with BWA #
 ##########################

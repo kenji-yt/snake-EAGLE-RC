@@ -16,32 +16,14 @@ rule install_eagle:
         """
 
 
-rule rename_chromosomes:
-    input:
-        original_bam="results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam",
-    output:
-        original_header="results/{ALIGNER}/{sample}/{sample}_{progenitor}_original_header.sam",
-        renamed_header="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed_header.sam",
-        renamed_bam="results/{ALIGNER}/{sample}/{sample}_{progenitor}_renamed.bam",
-    log:
-        "results/logs/{ALIGNER}/renaming/{sample}_{progenitor}.log", 
-    conda:
-        "../envs/samtools.yaml"
-    shell:
-        """
-        samtools view -H {input.original_bam} > {output.original_header}
-        sed '/^@SQ/ s/SN:/SN:UNIQUENAME_{wildcards.progenitor})_UNIQUENAME_/' {output.original_header} > {output.renamed_header}
-        samtools reheader {output.renamed_header} {input.original_bam} > {output.renamed_bam}
-        """
-
-
 rule read_sorting:
     input:
-        unpack(lambda wildcards: get_renamed_bams(wildcards.sample)),
+        unpack(lambda wildcards: get_bams(wildcards.sample)),
         eagle_installation="results/eagle_rc/eagle_intallation",
     log:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
+        sample_name="{sample}",
         assemblies=get_assemblies(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}" 
@@ -70,10 +52,10 @@ rule restore_chromosome_names_sorted_bams:
         "../envs/samtools.yaml"
     shell:
         """
-        bam_list=$(find results/eagle_rc/{sample}/tmp_renamed/ -name {sample}*.bam)
-        for bam in {input.bams}; do
-            bad_header=$(echo $bam | 's/.bam/_bad_header.sam/')
-            good_header=$(echo $bam | 's/.bam/_good_header.sam/')
+        bam_list=$(find results/eagle_rc/{wildcards.sample}/tmp_renamed/ -name {wildcards.sample}*.bam)
+        for bam in $bam_list; do
+            bad_header=$(echo $bam | sed 's/.bam/_bad_header.sam/')
+            good_header=$(echo $bam | sed 's/.bam/_good_header.sam/')
             outbam=$(echo $bam | sed 's|/tmp_renamed||')
 
             samtools view -H $bam > $bad_header
