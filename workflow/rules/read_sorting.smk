@@ -24,7 +24,7 @@ rule read_sorting:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
         sample_name="{sample}",
-        assemblies=get_assemblies(PROGENITORS),
+        assemblies=get_renamed_assemblies(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}" 
     run:
@@ -32,13 +32,13 @@ rule read_sorting:
         shell(" && ".join(command))
 
 
-rule change_sorted_bam_filenames: 
+rule change_sorted_bam_filenames_and_delete_renamed_assemblies: 
     input:
         log="results/logs/eagle_rc/sorting/{sample}.log",
     log:
         "results/logs/eagle_rc/renaming_files/{sample}.log",
     run:
-        command=make_rename_command(wildcards.sample)
+        command=make_rename_and_remove_command(wildcards.sample)
         shell(command)
 
 

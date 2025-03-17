@@ -2,7 +2,7 @@ rule rename_assemblies:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
     output:
-        f"results/{ALIGNER}"+"/{progenitor}/renamed_{progenitor}_assembly.fa"
+        "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
     log:
         "results/logs/assembly_renaming/{progenitor}.log"
     shell:
@@ -29,7 +29,7 @@ rule bwa_mem:
 
 rule bwa_index:
     input:
-        "results/bwa/{progenitor}/renamed_{progenitor}_assembly.fa",
+        "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
         "results/bwa/{progenitor}/{progenitor}.0123",
         "results/bwa/{progenitor}/{progenitor}.amb",
@@ -49,8 +49,8 @@ rule bwa_index:
 rule bismark_alignment:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        genome="results/bismark/{progenitor}/renamed_{progenitor}_assembly.fa",
-        bismark_indexes_dir=f"{INPUT_DIR}"+"/progenitors/{progenitor}/Bisulfite_Genome",
+        genome="results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
+        bismark_indexes_dir="results/renamed_assemblies/{progenitor}/Bisulfite_Genome",
     output:
         bam="results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",  
         report="results/bismark/{sample}/{sample}_{progenitor}_report.txt",
@@ -67,9 +67,9 @@ rule bismark_alignment:
 
 rule bismark_genome_preparation_fa:
     input:
-        "results/bismark/{progenitor}/renamed_{progenitor}_assembly.fa",
+        "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        directory("results/bismark/{progenitor}/Bisulfite_Genome")
+        directory("results/renamed_assemblies/{progenitor}/Bisulfite_Genome")
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
     wrapper:
@@ -101,7 +101,7 @@ rule star_alignment:
 
 rule star_index_genomes:
     input:
-        fasta = "results/star/{progenitor}/renamed_{progenitor}_assembly.fa"
+        fasta = "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
     output:
         idx = directory("results/star/{progenitor}/index"),
     message:

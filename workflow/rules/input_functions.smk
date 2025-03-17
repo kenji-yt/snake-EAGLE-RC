@@ -116,30 +116,14 @@ def get_bams(sample):
     return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
 
-# get assembly
-def get_assemblies(progenitors): # Here I still pass an argument because of previous error. Also check snakemake tutorial.
+# get renamed assemblies
+def get_renamed_assemblies(progenitors): 
     
-    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
-
     assembly_files = {}
     for progenitor in progenitors:
 
-        path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
-
-        fasta_files = []
-
-        for extension in fasta_extensions:
-            fasta_files.extend(glob.glob(os.path.join(path, extension)))
-
-        if len(fasta_files) > 1:
-            error_msg=f"ERROR: Ambigious assembly. More than one fasta file found in {path}. Exiting..."
-            raise ValueError(error_msg)
-    
-        elif len(fasta_files) == 0:
-            error_msg=f"ERROR: No assembly. No fasta file found in {path}. Exiting..."
-            raise ValueError(error_msg)
-
-        assembly_files[progenitor] = fasta_files[0]
+        path = f"results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
+        assembly_files[progenitor] = path
 
     return assembly_files
 
@@ -227,12 +211,15 @@ def make_eagle_command(input, assemblies, params, output):
 
 
 
-def make_rename_command(sample):
+def make_rename_and_remove_command(sample):
 
     command=""
     if len(PROGENITORS) == 2:
 
         for index, progenitor in enumerate(PROGENITORS):
+
+            #command += f"rm -r results/renamed_assemblies/{progenitor} 2>&1 | tee -a  results/logs/renaming_assemblies/deleting/{sample}.log && "
+            
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
