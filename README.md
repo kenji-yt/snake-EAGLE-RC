@@ -24,7 +24,7 @@ git clone https://github.com/kenji-yt/snake-EAGLE-RC.git
 ## Input 
 
 The input to snake-EAGLE-RC is a directory. The name of the directory must be the data type contained inside. Allowed options are: DNA, RNA or WGBS. If your data comes from an rna-seq experiment your input folder must be called 'RNA'. Inside it you should have two directories names 'progenitors' and 'polyploids': 
-    - The 'progenitors' directory should contain one subdirectory for each reference genome (each progenitor for allopolyploids). The name of each subdirectory should be the species or genome name and it will appear as such in the output files. Within each subdirectory you should have the corresponding reference genome in fasta/fastq format. Name these files as you wish as long as they have one of the following extensions: "gff","gff3","fa","fasta","fq","fna","fastq". 
+    - The 'progenitors' directory should contain one subdirectory for each reference genome (each progenitor for allopolyploids). The name of each subdirectory should be the species or genome name and it will appear as such in the output files. Within each subdirectory you should have the corresponding reference genome in fasta/fastq format. Name these files as you wish as long as they have one of the following extensions: "fa","fasta","fq","fna","fastq". In EAGLE-RC, you must ensure that chromosome names are different between subgenomes. **This is not the case in snake-EAGLE-RC.** In other words, you do not need to rename the sequences in your assemblies. 
     - The 'polyploids' directory should contain one subdirectory per sample. The name of each subdirectory should be a unique sample identifier (don't give the same name to different sample directories). Each of these sample directories should contain (appropriately filtered/pre-processed) read data in fasta/fastq format. There should be one file if the data is single-end and two files if paired-end. If paired-end, make sure the filenames are identical expect for a '1' and '2' indicating which side of the pair each file contains. You can input a mix of samples having single-end and paired-end data. 
 
 
@@ -54,7 +54,7 @@ input_directory/
 
 That's it, you are ready to sort reads using EAGLE-RC. From within the "snake-EAGLE-RC/" directory run:
 ```
-snakemake --use-conda --cores N --config INPUT='your/input/directory'
+snakemake --use-conda --cores N --config INPUT_DIR='your/input/directory'
 ```
 Make sure to have snakemake make installed, to replace 'your/input/directory' with the path to you input directory and 'N' with the number of cores you wish to allocate to the job. If you installed snakemake in a conda environment make sure to activate it (eg. "conda activate snakemake_env").  
 

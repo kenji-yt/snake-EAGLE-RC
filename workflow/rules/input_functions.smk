@@ -138,27 +138,29 @@ def make_eagle_command(input, assemblies, params, output):
 
     if len(PROGENITORS) == 2:
 
-        command = f"{input['eagle_installation']}/eagle-rc --ngi "
+        command = f"{input['eagle_installation']}/eagle-rc --ngi --isc"
         
         if len(sample_files[sample]) == 2:
             command += "--paired "
+
+        if DATA_TYPE=="WGBS":
+            command += "--bs=3 "
+
+        if DATA_TYPE=="RNA":
+            command += "--splice "
 
 
         for index, progenitor in enumerate(PROGENITORS):
             command += f"--ref{index + 1}={assemblies[progenitor]} --bam{index + 1}={input[progenitor]} " 
 
         command += f"-o {params['output_prefix']} "
-        
-        if DATA_TYPE=="WGBS":
-            command += "--bs=3 "
-
-        # Maybe add:
-        #if DATA_TYPE=="RNA":
-        #    command += "--splice "
+    
         
         command += f"> {params['output_prefix']}_reads.list"
-
-        return [command]
+        
+        script_content = f"#!/bin/bash\n{command}\n"
+        
+        return script_content
 
     elif len(PROGENITORS) == 3:
 
@@ -166,17 +168,25 @@ def make_eagle_command(input, assemblies, params, output):
         for i in range(len(PROGENITORS)):
             for j in range(i + 1, len(PROGENITORS)):
                 commands.append(
-                    f"{input['eagle_installation']}/eagle-rc --ngi --listonly \
+                    f"{input['eagle_installation']}/eagle-rc --ngi --isc --listonly \
                     --ref1={assemblies[PROGENITORS[i]]} --bam1={input[PROGENITORS[i]]} \
                     --ref2={assemblies[PROGENITORS[j]]} --bam2={input[PROGENITORS[j]]} \
                     > {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list"
                 )
 
+        if DATA_TYPE=="WGBS":
+            commands.append("--bs=3")
+
+        if DATA_TYPE=="RNA":
+            commands.append("--splice")
+
+        if len(sample_files[sample]) == 2:
+            command += "--paired "
+
         if len(sample_files[sample]) == 2:
             pe_flag = "--pe"
         else:
             pe_flag =""
-
         # The script calles the three genomes A, B and D; hence this notation here. 
         commands.append(
                     f"python {input['eagle_installation']}/scripts/ref3_ngi_consensus.py \
@@ -203,7 +213,11 @@ def make_eagle_command(input, assemblies, params, output):
             -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list"
         )
 
-        return commands
+        command=" && ".join(commands)
+
+        script_content = f"#!/bin/bash\n{command}\n"
+
+        return script_content
 
     else:
         error_msg=f"ERROR: Wrong number of progenitors found. Only 2 and 3 allowed. Exiting..."

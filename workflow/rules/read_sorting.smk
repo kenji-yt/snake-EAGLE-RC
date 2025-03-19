@@ -16,20 +16,34 @@ rule install_eagle:
         """
 
 
-rule read_sorting:
+rule make_read_sorting_script:
     input:
         unpack(lambda wildcards: get_bams(wildcards.sample)),
         eagle_installation="results/eagle_rc/eagle_intallation",
-    log:
-        "results/logs/eagle_rc/sorting/{sample}.log",
+    output:
+        "results/eagle_rc/{sample}/sorting_script.sh"
     params:
         sample_name="{sample}",
         assemblies=get_renamed_assemblies(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}" 
     run:
-        command=make_eagle_command(input, params.assemblies, params, output)
-        shell(" && ".join(command))
+        script_content=make_eagle_command(input, params.assemblies, params, output)
+        script_filename = output[0]
+        with open(script_filename, "w") as script_file:
+            script_file.write(script_content)
+
+
+rule read_sorting:
+    input:
+        script="results/eagle_rc/{sample}/sorting_script.sh"
+    log:
+        "results/logs/eagle_rc/sorting/{sample}.log",
+    conda:
+        "../envs/read_sorting.yaml"
+    shell:
+        "bash {input.script}"
+
 
 
 rule change_sorted_bam_filenames_and_delete_renamed_assemblies: 

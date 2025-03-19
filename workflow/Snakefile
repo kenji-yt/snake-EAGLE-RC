@@ -19,7 +19,7 @@ if len(config) == 0:
 
 ## Parse Input directory
 
-INPUT_DIR = os.path.normpath(config["INPUT"])
+INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
 if DATA_TYPE=="DNA":
     ALIGNER="bwa"
