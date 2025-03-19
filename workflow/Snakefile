@@ -32,7 +32,7 @@ else:
     raise ValueError(error_msg)
 
 
-SAMPLES = [ sample for sample in os.listdir(f"{INPUT_DIR}/polyploids") if sample != "control_genome" ] # Control genome used in methylation data (!?)
+SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
 PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
 
 
@@ -64,10 +64,13 @@ accepted_read_patterns = [
         f"{INPUT_DIR}/polyploids/**/*.fq.gz",
         f"{INPUT_DIR}/polyploids/**/*.fa.gz",
     ]
-all_read_files = [] 
+all_read_paths = [] 
 for pattern in accepted_read_patterns:
-        all_read_files.extend(glob.glob(pattern, recursive=True))
-
+        for file in glob.glob(pattern, recursive=True):
+        basename = os.path.basename(file)  
+        parent_dir = os.path.basename(os.path.dirname(file))  
+        all_read_paths.append(os.path.join(parent_dir, basename))
+        
 
 ### Make wildcard constraints ###
 import re

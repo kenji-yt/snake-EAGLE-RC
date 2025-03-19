@@ -268,7 +268,7 @@ def multiqc_input(type):
     input = []
 
     input.extend(
-        expand("results/fastqc/{read_file}_fastqc.zip", read_file=all_read_files)
+        expand("results/fastqc/{read_file}_fastqc.zip", read_file=all_read_paths)
     )
     
     input.extend(
