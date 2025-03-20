@@ -67,9 +67,9 @@ accepted_read_patterns = [
 all_read_paths = [] 
 for pattern in accepted_read_patterns:
         for file in glob.glob(pattern, recursive=True):
-        basename = os.path.basename(file)  
-        parent_dir = os.path.basename(os.path.dirname(file))  
-        all_read_paths.append(os.path.join(parent_dir, basename))
+            basename = os.path.basename(file)  
+            parent_dir = os.path.basename(os.path.dirname(file))  
+            all_read_paths.append(os.path.join(parent_dir, basename))
         
 
 ### Make wildcard constraints ###
@@ -91,14 +91,14 @@ include: "rules/read_sorting.smk"
 
 rule all:
     input:
-        "results/snake-EAGLE-RC-reproducibility_report.txt"
+        "results/reproducibility_report.txt"
 
 rule make_reproducibility_report:
     input:
         input_dir=f"{INPUT_DIR}",
         multi_qc="results/MultiQC/multiqc_report.html"
     output:
-        "results/snake-EAGLE-RC-reproducibility_report.txt"
+        "results/reproducibility_report.txt"
     threads: workflow.cores
     shell:
         "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"

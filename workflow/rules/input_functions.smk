@@ -138,7 +138,7 @@ def make_eagle_command(input, assemblies, params, output):
 
     if len(PROGENITORS) == 2:
 
-        command = f"{input['eagle_installation']}/eagle-rc --ngi --isc"
+        command = f"{input['eagle_installation']}/eagle-rc --ngi --isc "
         
         if len(sample_files[sample]) == 2:
             command += "--paired "
@@ -246,19 +246,6 @@ def make_rename_and_remove_command(sample):
         command="echo Hexaploid: no renaming required."
 
     return command
-
-
-def get_sorted_bams(sample):
-    
-    pattern = f"results/eagle_rc/{sample}/tmp_renamed/{sample}*.bam"  # Adjust the directory if needed
-
-    bam_files = glob.glob(pattern)
-
-    if not bam_files:
-        error_msg=f"No BAM files found for sample {sample} in results/eagle_rc/{sample}/tmp_renamed."
-        raise ValueError(error_msg)
-
-    return bam_files  
 
 
 

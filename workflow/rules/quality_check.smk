@@ -4,7 +4,7 @@
 
 rule fastqc:
     input:
-        "{read_file}",
+        f"{INPUT_DIR}/polyploids/"+"{read_file}",
     output:
         html="results/fastqc/{read_file}.html",
         zip="results/fastqc/{read_file}_fastqc.zip",  # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename

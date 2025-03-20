@@ -58,7 +58,6 @@ rule change_sorted_bam_filenames_and_delete_renamed_assemblies:
 
 rule restore_chromosome_names_sorted_bams: 
     input:
-        #bams=lambda wildcards: get_sorted_bams(wildcards.sample),
         log="results/logs/eagle_rc/renaming_files/{sample}.log",
     log:
         "results/logs/eagle_rc/restoring_chr_names/{sample}.log",
