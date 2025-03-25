@@ -13,7 +13,7 @@ import re
 
 if len(config) == 0:
     
-    error_msg=f"Please specify the path to the input directory with --config INPUT='path/to/input'."
+    error_msg=f"Please specify the path to the input directory with --config INPUT_DIR='path/to/input_directory'."
     raise ValueError(error_msg)
 
 
@@ -70,7 +70,7 @@ for pattern in accepted_read_patterns:
             basename = os.path.basename(file)  
             parent_dir = os.path.basename(os.path.dirname(file))  
             all_read_paths.append(os.path.join(parent_dir, basename))
-        
+
 
 ### Make wildcard constraints ###
 import re

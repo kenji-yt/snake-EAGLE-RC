@@ -49,24 +49,40 @@ echo "" >> "${report}"
 echo "" >> "${report}"
 
 # Loop through each file in the input directory
-for sub_input_dir in "${input_dir}"/*; do
-    if [ -d "${sub_input_dir}" ]; then
-        echo $(basename "${sub_input_dir}") >> "${report}"
-        for sub_sub in "${sub_input_dir}"/*; do
-            if [ -d "${sub_sub}" ]; then
-                echo $(basename "${sub_sub}") >> "${report}"
-                if [ $(basename "${sub_input_dir}") == "progenitors" ]; then
-                    find "${sub_sub}" -maxdepth 1 \( -name "*.fa" -o -name "*.fasta" -o -name "*.fna" -o -name "*.fq" -o -name "*.fastq" \) | \
-                    xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"   
-                else
-                    find "${sub_sub}" | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
-                fi   
-            fi
-        done
-    echo "" >> "${report}"
-    echo "" >> "${report}"
-    fi
-done
+if [ "$OS" == "Linux" ]; then
+    echo "Linux md5sum checksums for the input files" >> "${report}"
+    for sub_input_dir in "${input_dir}"/*; do
+        if [ -d "${sub_input_dir}" ]; then
+            echo $(basename "${sub_input_dir}") >> "${report}"
+            for sub_sub in "${sub_input_dir}"/*; do
+                if [ -d "${sub_sub}" ]; then
+                    echo $(basename "${sub_sub}") >> "${report}"
+                    find "${sub_sub}" -type f | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
+                     
+                fi
+            done
+        echo "" >> "${report}"
+        echo "" >> "${report}"
+        fi
+    done
+# Assume anything else is macOS
+else
+    echo "Mac md5 checksums for the input files" >> "${report}"
+    for sub_input_dir in "${input_dir}"/*; do
+        if [ -d "${sub_input_dir}" ]; then
+            echo $(basename "${sub_input_dir}") >> "${report}"
+            for sub_sub in "${sub_input_dir}"/*; do
+                if [ -d "${sub_sub}" ]; then
+                    echo $(basename "${sub_sub}") >> "${report}"
+                    find "${sub_sub}" -type f | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"
+                       
+                fi
+            done
+        echo "" >> "${report}"
+        echo "" >> "${report}"
+        fi
+    done
+fi
 
 echo "" >> "${report}"
 echo "" >> "${report}"
@@ -80,8 +96,8 @@ echo "" >> "${report}"
 version_snake_eagle_rc=$(git describe --tags --abbrev=0 | sed 's/v//g')
 echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
 
-eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed '/v//g')
-echo "eagle-rc=${eagle_version}"
+eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed 's/v//g')
+echo "eagle-rc=${eagle_version}" >> "${report}"
 
 echo "fastqc=0.12.1" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
@@ -105,6 +121,14 @@ echo "* OUTPUT FILES *" >> "${report}"
 echo "****************" >> "${report}"
 echo "" >> "${report}"
 echo "" >> "${report}"
-md5sum results/MultiQC/multiqc_report.html | awk '{print $2"\t"$1}' >> "${report}"  
-echo "" >> "${report}"
-find "results/eagle_rc/" -name "*.ref.bam" | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
+if [ "$OS" == "Linux" ]; then
+    echo "Linux md5sum checksums for the output files" >> "${report}"
+    md5sum results/MultiQC/multiqc_report.html | awk '{print $2"\t"$1}' >> "${report}"  
+    echo "" >> "${report}"
+    find "results/eagle_rc/" -name "*.ref.bam" | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
+else
+    echo "Mac md5 checksums for the input files" >> "${report}"
+    md5 results/MultiQC/multiqc_report.html | awk '{print $2"\t"$4}' >> "${report}"  
+    echo "" >> "${report}"
+    find "results/eagle_rc/" -name "*.ref.bam" | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"
+fi

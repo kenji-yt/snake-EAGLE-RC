@@ -4,7 +4,7 @@
 # get assembly
 def get_assembly(progenitor):
     
-    path = os.path.join(f"{INPUT_DIR}/progenitors",progenitor)
+    path = os.path.join(f"{INPUT_DIR}/progenitors", progenitor)
 
     fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
 

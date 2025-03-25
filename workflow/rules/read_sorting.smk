@@ -77,5 +77,5 @@ rule restore_chromosome_names_sorted_bams:
             rm $bam $good_header $bad_header
         done
 
-        rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
+        #rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
         """
