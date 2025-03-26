@@ -4,7 +4,7 @@
 
 input_dir=$1
 n_cores=$2
-report=results/reproducibility_report.txt
+report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
 echo "******************" >> "${report}"
@@ -61,8 +61,8 @@ if [ "$OS" == "Linux" ]; then
                      
                 fi
             done
-        echo "" >> "${report}"
-        echo "" >> "${report}"
+            echo "" >> "${report}"
+            echo "" >> "${report}"
         fi
     done
 # Assume anything else is macOS
@@ -78,8 +78,8 @@ else
                        
                 fi
             done
-        echo "" >> "${report}"
-        echo "" >> "${report}"
+            echo "" >> "${report}"
+            echo "" >> "${report}"
         fi
     done
 fi
