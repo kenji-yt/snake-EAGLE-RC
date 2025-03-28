@@ -109,8 +109,8 @@ elif [ $(basename "${input_dir}")=="WGBS" ]; then
     echo "bismark=0.24.2" >> "${report}"
 fi
 echo $(grep 'samtools' workflow/envs/samtools.yaml | sed 's/- s/s/g') >> "${report}" 
-echo $(grep 'git' workflow/envs/build_eagle.yaml | sed 's/- s/s/g') >> "${report}"
-echo $(grep 'make' workflow/envs/build_eagle.yaml | sed 's/- s/s/g') >> "${report}"  
+echo $(grep 'git' workflow/envs/build_eagle.yaml | sed 's/- g/g/g') >> "${report}"
+echo $(grep 'make' workflow/envs/build_eagle.yaml | sed 's/- m/m/g') >> "${report}"  
 echo "qualimap=2.3" >> "${report}"
 echo "snakemake wrappers release=4.7.2" >> "${report}"
 echo "" >> "${report}"

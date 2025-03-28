@@ -101,4 +101,4 @@ rule make_reproducibility_report:
         "results/snake_EAGLE_RC_reproducibility_report.txt"
     threads: workflow.cores
     shell:
-        "bash {workflow.basedir}/scripts/make_reproducibility_report.sh {input.input_dir} {threads}"
+        "bash {workflow.basedir}/scripts/make_EAGLE_reproducibility_report.sh {input.input_dir} {threads}"
