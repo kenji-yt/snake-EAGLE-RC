@@ -31,11 +31,7 @@ rule bwa_index:
     input:
         "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        "results/bwa/{progenitor}/{progenitor}.0123",
-        "results/bwa/{progenitor}/{progenitor}.amb",
-        "results/bwa/{progenitor}/{progenitor}.ann",
-        "results/bwa/{progenitor}/{progenitor}.bwt.2bit.64",
-        "results/bwa/{progenitor}/{progenitor}.pac",
+        idx=multiext("results/bwa/{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
