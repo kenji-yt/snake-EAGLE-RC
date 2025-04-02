@@ -14,28 +14,28 @@ rule rename_assemblies:
 # DNA alignment with BWA #
 ##########################
 
-rule bwa_mem:
+rule bwa_mem2:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        idx=multiext("results/bwa/{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext("results/bwa/{progenitor}/{progenitor}",".amb", ".ann", ".bwt.2bit.64", ".pac", ".0123"),
     output:
         "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
     threads: workflow.cores
     wrapper:
-        "v5.10.0/bio/bwa/mem"
+        "v4.7.2/bio/bwa-mem2/mem"
 
 
-rule bwa_index:
+rule bwa_mem2_index:
     input:
         "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        idx=multiext("results/bwa/{progenitor}/{progenitor}", ".amb", ".ann", ".bwt", ".pac", ".sa"),
+        idx=multiext("results/bwa/{progenitor}/{progenitor}",".amb", ".ann", ".bwt.2bit.64", ".pac", ".0123"),
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
-        "v5.10.0/bio/bwa/index"
+        "v4.7.2/bio/bwa-mem2/index"
 
 
 ###############################
