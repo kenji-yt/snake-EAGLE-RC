@@ -16,10 +16,16 @@ if len(config) == 0:
     error_msg=f"Please specify the path to the input directory with --config INPUT_DIR='path/to/input_directory'."
     raise ValueError(error_msg)
 
+## Config
+
+INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
+SOFT_CLIP = config.get("SOFT_CLIP", False)
+if not isinstance(SOFT_CLIP, bool):
+    raise ValueError("Error: SOFT_CLIP must be either True or False.")
+
 
 ## Parse Input directory
 
-INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 DATA_TYPE = os.path.basename(INPUT_DIR) # Assumes user named input directory after data type (DNA, RNA, WGBS) unless a config file is provided. 
 if DATA_TYPE=="DNA":
     ALIGNER="bwa"
