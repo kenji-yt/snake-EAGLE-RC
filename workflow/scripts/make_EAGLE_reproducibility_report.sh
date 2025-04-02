@@ -99,7 +99,7 @@ echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
 eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed 's/v//g')
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
-echo "fastqc=0.12.1" >> "${report}"
+echo "fastqc=0.12.1" >> "${report}" # /!\ Any version change here must be manually carried over to HEAL (downstream dependency)
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "star=2.7.11b" >> "${report}"
 elif [ $(basename "${input_dir}")=="DNA" ]; then

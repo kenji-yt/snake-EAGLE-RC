@@ -2,10 +2,5 @@ name: build_eagle
 channels:
   - conda-forge
 dependencies: 
-  - git=2.45.2
-  - make=4.2.1
-  #- autoconf=2.69
-  #- libcurl=7.65.3
-  #- openssl=1.1.1d
-  #- backports.lzma=0.0.14
-  #- gcc=14.2.0
+  - git=2.45.2 # If change, make sure it's the same as snake-GENESPACE
+  - make=4.2.1 # Same here. This is important for HEAL reproducibility report.

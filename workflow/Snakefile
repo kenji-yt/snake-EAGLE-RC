@@ -99,6 +99,8 @@ rule make_reproducibility_report:
         multi_qc="results/MultiQC/multiqc_report.html"
     output:
         "results/snake_EAGLE_RC_reproducibility_report.txt"
-    threads: workflow.cores
+    params:
+        cores=workflow.cores
+    threads:1
     shell:
-        "bash {workflow.basedir}/scripts/make_EAGLE_reproducibility_report.sh {input.input_dir} {threads}"
+        "bash {workflow.basedir}/scripts/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores}"
