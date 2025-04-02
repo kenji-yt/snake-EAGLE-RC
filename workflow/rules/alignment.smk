@@ -24,7 +24,7 @@ rule bwa_mem:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
     threads: workflow.cores
     wrapper:
-        "v4.7.2/bio/bwa-mem2/mem"
+        "v5.10.0/bio/bwa/mem"
 
 
 rule bwa_index:
@@ -35,7 +35,7 @@ rule bwa_index:
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
-        "v4.7.2/bio/bwa-mem2/index"
+        "v5.10.0/bio/bwa/index"
 
 
 ###############################
