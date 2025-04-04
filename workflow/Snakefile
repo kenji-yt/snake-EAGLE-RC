@@ -19,6 +19,9 @@ if len(config) == 0:
 ## Config
 
 INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
+TRIMMING = config.get("TRIMMING", True)
+if not isinstance(TRIMMING, bool):
+    raise ValueError("Error: TRIMMING must be either True or False.")
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
@@ -94,6 +97,7 @@ include: "rules/alignment.smk"
 include: "rules/input_functions.smk"
 include: "rules/quality_check.smk"
 include: "rules/read_sorting.smk"
+include: "rules/trimming.smk"
 
 rule all:
     input:

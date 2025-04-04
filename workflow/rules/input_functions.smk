@@ -1,6 +1,5 @@
 #### Input functions ####
 
-
 # get assembly
 def get_assembly(progenitor):
     
@@ -25,89 +24,153 @@ def get_assembly(progenitor):
 
 
 
+# get read input for trimming
+def get_read_files_to_trim(sample):
+
+    if len(sample_files[sample]) == 2:
+
+        fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+        fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+
+        if len(fq1_path) != len(fq2_path):
+            error_msg = f"Error: Read filenames for {sample} are of different lengths. Make sure the filenames differ only by one character being either '1' or '2' to indicate read pair entry."
+            raise ValueError(error_msg)
+
+        diff_position = None
+        for i in range(len(fq1_path)):
+            if fq1_path[i] != fq2_path[i]:
+                if (fq1_path[i] == '1' and fq2_path[i] == '2') or (fq1_path[i] == '2' and fq2_path[i] == '1'):
+                    diff_position = i
+                    break
+                else:
+                    error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
+                    raise ValueError(error_msg)
+        
+        return{
+            'sample':[fq1_path, fq2_path]
+        }
+            
+    elif len(sample_files[sample]) == 1:
+        return {
+            'sample':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+        }
+    else:
+        error_msg = f"Error: Either more than two or zero read files for sample {sample}."
+        raise ValueError(error_msg)
+
+
+
 # get read input
 def get_read_files(sample):
 
-
-    if DATA_TYPE=="RNA": 
+    if TRIMMING==True:
         if len(sample_files[sample]) == 2:
-            fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
 
-            if len(fq1_path) != len(fq2_path):
-                error_msg = f"Error: Read filenames for {sample} are of different lengths. Make sure the filenames differ only by one character being either '1' or '2' to indicate read pair entry."
-                raise ValueError(error_msg)
+            fq1_path=f"results/trimmed/{sample}/{sample}_R1_trimmed.fastq"
+            fq2_path=f"results/trimmed/{sample}/{sample}_R2_trimmed.fastq"
 
-            diff_position = None
-            for i in range(len(fq1_path)):
-                if fq1_path[i] != fq2_path[i]:
-                    if (fq1_path[i] == '1' and fq2_path[i] == '2') or (fq1_path[i] == '2' and fq2_path[i] == '1'):
-                        diff_position = i
-                        break
-                    else:
-                        error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
-                        raise ValueError(error_msg)
-            
-            if fq1_path[diff_position] == '1':
+            if DATA_TYPE=="RNA":
                 return {'fq1': fq1_path, 'fq2': fq2_path}
-            elif fq1_path[diff_position] == '2':
-                return {'fq1': fq2_path, 'fq2': fq1_path}
-            else:
-                error_msg = f"Error: Could not determine read pair assignment for sample {sample}. Make sure the read files contain '_R1' and '_R2' in their names."
-                raise ValueError(error_msg)
-                
-        elif len(sample_files[sample]) == 1:
-            return {
-                    'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            }
-        else:
-            error_msg = f"Error: Either more than two or zero read files for sample {sample}."
-            raise ValueError(error_msg)
 
-
-    elif DATA_TYPE=="WGBS":
-        if len(sample_files[sample]) == 2:
-            fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
-
-            if len(fq1_path) != len(fq2_path):
-                error_msg = f"Error: Read filenames for {sample} are of different lengths. Make sure the filenames differ only by one character being either '1' or '2' to indicate read pair entry."
-                raise ValueError(error_msg)
-
-            diff_position = None
-            for i in range(len(fq1_path)):
-                if fq1_path[i] != fq2_path[i]:
-                    if (fq1_path[i] == '1' and fq2_path[i] == '2') or (fq1_path[i] == '2' and fq2_path[i] == '1'):
-                        diff_position = i
-                        break
-                    else:
-                        error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
-                        raise ValueError(error_msg)
-            
-            if fq1_path[diff_position] == '1':
+            elif DATA_TYPE=="WGBS":
                 return {'fq_1': fq1_path, 'fq_2': fq2_path}
-            elif fq1_path[diff_position] == '2':
-                return {'fq_1': fq2_path, 'fq_2': fq1_path}
-            else:
-                error_msg = f"Error: Could not determine read pair assignment for sample {sample}. Make sure the read files contain '_R1' and '_R2' in their names."
-                raise ValueError(error_msg)
 
+            elif DATA_TYPE=="DNA":
+                return {'reads':[fq1_path, fq2_path]}
+        
         elif len(sample_files[sample]) == 1:
-            return {
-                    'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
-            }
+
+            fq_path=f"results/trimmed/{sample}/{sample}_trimmed.fastq"
+
+            if DATA_TYPE=="RNA":
+                return {'fq1': fq_path}
+
+            elif DATA_TYPE=="WGBS":
+                return {'fq': fq_path}
+
+            elif DATA_TYPE=="DNA":
+                return {'reads': fq_path}
+
         else:
             error_msg = f"Error: Either more than two or zero read files for sample {sample}."
-            raise ValueError(error_msg)        
+            raise ValueError(error_msg)   
+
+    else:
+
+        if DATA_TYPE=="RNA": 
+            if len(sample_files[sample]) == 2:
+                fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+                fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+
+                if len(fq1_path) != len(fq2_path):
+                    error_msg = f"Error: Read filenames for {sample} are of different lengths. Make sure the filenames differ only by one character being either '1' or '2' to indicate read pair entry."
+                    raise ValueError(error_msg)
+
+                diff_position = None
+                for i in range(len(fq1_path)):
+                    if fq1_path[i] != fq2_path[i]:
+                        if (fq1_path[i] == '1' and fq2_path[i] == '2') or (fq1_path[i] == '2' and fq2_path[i] == '1'):
+                            diff_position = i
+                            break
+                        else:
+                            error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
+                            raise ValueError(error_msg)
+                
+                if fq1_path[diff_position] == '1':
+                    return {'fq1': fq1_path, 'fq2': fq2_path}
+                else:
+                    return {'fq1': fq2_path, 'fq2': fq1_path}
+        
+                    
+            elif len(sample_files[sample]) == 1:
+                return {
+                        'fq1':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+                }
+            else:
+                error_msg = f"Error: Either more than two or zero read files for sample {sample}."
+                raise ValueError(error_msg)
 
 
-    elif DATA_TYPE=="DNA":
-        sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
-        files  = os.listdir(sample_dir)
-        file_path = [os.path.join(sample_dir, file) for file in files]
-        return {
-            'reads':file_path
-        }
+        elif DATA_TYPE=="WGBS":
+            if len(sample_files[sample]) == 2:
+                fq1_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+                fq2_path = f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][1]}"
+
+                if len(fq1_path) != len(fq2_path):
+                    error_msg = f"Error: Read filenames for {sample} are of different lengths. Make sure the filenames differ only by one character being either '1' or '2' to indicate read pair entry."
+                    raise ValueError(error_msg)
+
+                diff_position = None
+                for i in range(len(fq1_path)):
+                    if fq1_path[i] != fq2_path[i]:
+                        if (fq1_path[i] == '1' and fq2_path[i] == '2') or (fq1_path[i] == '2' and fq2_path[i] == '1'):
+                            diff_position = i
+                            break
+                        else:
+                            error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
+                            raise ValueError(error_msg)
+                
+                if fq1_path[diff_position] == '1':
+                    return {'fq_1': fq1_path, 'fq_2': fq2_path}
+                else:
+                    return {'fq_1': fq2_path, 'fq_2': fq1_path} 
+
+            elif len(sample_files[sample]) == 1:
+                return {
+                        'fq':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+                }
+            else:
+                error_msg = f"Error: Either more than two or zero read files for sample {sample}."
+                raise ValueError(error_msg)        
+
+
+        elif DATA_TYPE=="DNA":
+            sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
+            files  = os.listdir(sample_dir)
+            file_path = [os.path.join(sample_dir, file) for file in files]
+            return {
+                'reads':file_path
+            }
 
 
 # get eagle-rc input
