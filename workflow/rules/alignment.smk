@@ -5,9 +5,9 @@ rule rename_assemblies:
         "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
     log:
         "results/logs/assembly_renaming/{progenitor}.log"
-    shell:
-        """
-        sed 's/^>/>UNIQUENAME_{wildcards.progenitor}_UNIQUENAME_/' {input} > {output}
+    shell: 
+        """ 
+        sed 's/^>/>UNQ_{wildcards.progenitor}_NME_/' {input} > {output}
         """
 
 ##########################
@@ -56,8 +56,8 @@ rule bismark_alignment:
     threads: 5 # Should be the maximal usage for the alignment. See: https://github.com/FelixKrueger/Bismark/issues/706
     params:
         extra=lambda wildcards:(
-            f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor} --local" if SOFT_CLIP 
-            else f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor}"
+            f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor}_dir --local" if SOFT_CLIP 
+            else f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor}_dir"
         ),
         basename='{sample}_{progenitor}' 
     wrapper:

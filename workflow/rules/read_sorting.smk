@@ -72,7 +72,7 @@ rule restore_chromosome_names_sorted_bams:
             outbam=$(echo $bam | sed 's|/tmp_renamed||')
 
             samtools view -H $bam > $bad_header
-            sed '/^@SQ/ s/SN:UNIQUENAME_.*_UNIQUENAME_/SN:/' $bad_header > $good_header
+            sed '/^@SQ/ s/SN:UNQ_.*_NME_/SN:/' $bad_header > $good_header
             samtools reheader $good_header $bam > $outbam
             rm $bam $good_header $bad_header
         done

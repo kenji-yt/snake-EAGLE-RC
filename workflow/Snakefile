@@ -19,6 +19,7 @@ if len(config) == 0:
 ## Config
 
 INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
+SCRIPTS_DIR = config.get("SCRIPTS_DIR", f"{workflow.basedir}/scripts") # For integration into HEAL (reverse dependency)
 TRIMMING = config.get("TRIMMING", True)
 if not isinstance(TRIMMING, bool):
     raise ValueError("Error: TRIMMING must be either True or False.")
@@ -110,7 +111,8 @@ rule make_reproducibility_report:
     output:
         "results/snake_EAGLE_RC_reproducibility_report.txt"
     params:
+        scripts=f"{SCRIPTS_DIR}",
         cores=workflow.cores
     threads:1
     shell:
-        "bash {workflow.basedir}/scripts/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores}"
+        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores}"
