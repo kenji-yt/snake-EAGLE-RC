@@ -13,7 +13,7 @@ rule fastqc:
     log:
         "results/logs/fastqc/{read_file}.log",
     resources:
-        mem_mb=lambda wildcard, input: input.size_mb+1000
+        mem_mb=lambda wildcards, input, threads: min(input.size_mb + 1000, 10000 * threads)
     threads: workflow.cores
     wrapper:
         "v4.7.2/bio/fastqc"
