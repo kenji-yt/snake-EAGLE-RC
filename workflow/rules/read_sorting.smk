@@ -40,10 +40,19 @@ rule read_sorting:
         script="results/eagle_rc/{sample}/sorting_script.sh"
     log:
         "results/logs/eagle_rc/sorting/{sample}.log",
+    params:
+        fail_log="results/logs/eagle_rc/sorting/failed_{sample}.log"
     conda:
         "../envs/read_sorting.yaml"
     shell:
-        "bash {input.script}"
+        """
+        bash {input.script} > {log} 2>&1
+        status=$?
+        if [ $status -ne 0 ]; then
+            mv {log} {params.fail_log}
+            exit $status
+        fi
+        """
 
 
 

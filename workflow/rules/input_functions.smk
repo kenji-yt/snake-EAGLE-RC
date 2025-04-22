@@ -220,8 +220,6 @@ def make_eagle_command(input, assemblies, params, output):
     
         
         command += f"> {params['output_prefix']}_reads.list "
-
-        commad += f"2> {params['sorting_log']}"
         
         script_content = f"#!/bin/bash\n{command}\n"
         
@@ -245,8 +243,7 @@ def make_eagle_command(input, assemblies, params, output):
                 if len(sample_files[sample]) == 2:
                     single_command += "--paired "
 
-                single_command += f"> {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list \
-                            2> {params['sorting_log']}"
+                single_command += f"> {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list"
                 
                 commands.append(single_command)
 
@@ -261,29 +258,25 @@ def make_eagle_command(input, assemblies, params, output):
             {pe_flag} -u -d -o {params['output_hexa']} \
             -AB {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[1]}.list \
             -AD {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[2]}.list \
-            -BD {params['output_hexa']}_{PROGENITORS[1]}vs_{PROGENITORS[2]}.list \
-            > {params['sorting_log']} 2>&1"
+            -BD {params['output_hexa']}_{PROGENITORS[1]}vs_{PROGENITORS[2]}.list"
         )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[0]]} \
-            -o {params['output_prefix']}_{PROGENITORS[0]} {params['output_hexa']}.chrA.list \
-            > {params['sorting_log']} 2>&1"
+            -o {params['output_prefix']}_{PROGENITORS[0]} {params['output_hexa']}.chrA.list"
         )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[1]]} \
-            -o {params['output_prefix']}_{PROGENITORS[1]} {params['output_hexa']}.chrB.list \
-            > {params['sorting_log']} 2>&1"
+            -o {params['output_prefix']}_{PROGENITORS[1]} {params['output_hexa']}.chrB.list"
         )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[2]]} \
-            -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list \
-            > {params['sorting_log']} 2>&1"
+            -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list"
         )
 
         command=" && ".join(commands)
