@@ -2,5 +2,6 @@ name: build_eagle
 channels:
   - conda-forge
 dependencies: 
-  - git=2.45.2 # If change, make sure it's the same as snake-GENESPACE
-  - make=4.2.1 # Same here. This is important for HEAL reproducibility report.
+  - git=2.45.2 
+  - make=4.2.1 
+  - openjdk
