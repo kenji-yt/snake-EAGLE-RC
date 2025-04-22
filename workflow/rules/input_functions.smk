@@ -219,7 +219,9 @@ def make_eagle_command(input, assemblies, params, output):
         command += f"-o {params['output_prefix']} "
     
         
-        command += f"> {params['output_prefix']}_reads.list"
+        command += f"> {params['output_prefix']}_reads.list "
+
+        commad += f"2> {params['sorting_log']}"
         
         script_content = f"#!/bin/bash\n{command}\n"
         
@@ -230,21 +232,24 @@ def make_eagle_command(input, assemblies, params, output):
         commands = []
         for i in range(len(PROGENITORS)):
             for j in range(i + 1, len(PROGENITORS)):
-                commands.append(
-                    f"{input['eagle_installation']}/eagle-rc --ngi --isc --listonly \
+                single_command = f"{input['eagle_installation']}/eagle-rc --ngi --isc --listonly \
                     --ref1={assemblies[PROGENITORS[i]]} --bam1={input[PROGENITORS[i]]} \
-                    --ref2={assemblies[PROGENITORS[j]]} --bam2={input[PROGENITORS[j]]} \
-                    > {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list"
-                )
+                    --ref2={assemblies[PROGENITORS[j]]} --bam2={input[PROGENITORS[j]]} "
 
-        if DATA_TYPE=="WGBS":
-            commands.append("--bs=3")
+                if DATA_TYPE=="WGBS":
+                    single_command += "--bs=3 "
 
-        if DATA_TYPE=="RNA":
-            commands.append("--splice")
+                if DATA_TYPE=="RNA":
+                    single_command += "--splice "
 
-        if len(sample_files[sample]) == 2:
-            command += "--paired "
+                if len(sample_files[sample]) == 2:
+                    single_command += "--paired "
+
+                single_command += f"> {params['output_hexa']}_{PROGENITORS[i]}vs_{PROGENITORS[j]}.list \
+                            2> {params['sorting_log']}"
+                
+                commands.append(single_command)
+
 
         if len(sample_files[sample]) == 2:
             pe_flag = "--pe"
@@ -252,28 +257,33 @@ def make_eagle_command(input, assemblies, params, output):
             pe_flag =""
         # The script calles the three genomes A, B and D; hence this notation here. 
         commands.append(
-                    f"python {input['eagle_installation']}/scripts/ref3_ngi_consensus.py \
-                    {pe_flag} -u -d -o {params['output_hexa']} \
-                    -AB {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[1]}.list \
-                    -AD {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[2]}.list \
-                    -BD {params['output_hexa']}_{PROGENITORS[1]}vs_{PROGENITORS[2]}.list")
+            f"python {input['eagle_installation']}/scripts/ref3_ngi_consensus.py \
+            {pe_flag} -u -d -o {params['output_hexa']} \
+            -AB {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[1]}.list \
+            -AD {params['output_hexa']}_{PROGENITORS[0]}vs_{PROGENITORS[2]}.list \
+            -BD {params['output_hexa']}_{PROGENITORS[1]}vs_{PROGENITORS[2]}.list \
+            > {params['sorting_log']} 2>&1"
+        )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[0]]} \
-            -o {params['output_prefix']}_{PROGENITORS[0]} {params['output_hexa']}.chrA.list"
+            -o {params['output_prefix']}_{PROGENITORS[0]} {params['output_hexa']}.chrA.list \
+            > {params['sorting_log']} 2>&1"
         )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[1]]} \
-            -o {params['output_prefix']}_{PROGENITORS[1]} {params['output_hexa']}.chrB.list"
+            -o {params['output_prefix']}_{PROGENITORS[1]} {params['output_hexa']}.chrB.list \
+            > {params['sorting_log']} 2>&1"
         )
 
         commands.append(
             f"{input['eagle_installation']}/eagle-rc \
             --refonly --readlist -a {input[PROGENITORS[2]]} \
-            -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list"
+            -o {params['output_prefix']}_{PROGENITORS[2]} {params['output_hexa']}.chrD.list \
+            > {params['sorting_log']} 2>&1"
         )
 
         command=" && ".join(commands)

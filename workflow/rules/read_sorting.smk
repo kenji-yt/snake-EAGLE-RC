@@ -26,7 +26,8 @@ rule make_read_sorting_script:
         sample_name="{sample}",
         assemblies=get_renamed_assemblies(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
-        output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}" 
+        output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}",
+        sorting_log="results/logs/eagle_rc/sorting/{sample}.log"
     run:
         script_content=make_eagle_command(input, params.assemblies, params, output)
         script_filename = output[0]
