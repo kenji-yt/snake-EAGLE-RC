@@ -5,4 +5,3 @@ dependencies:
   - git=2.45.2 
   - make=4.2.1 
   - openjdk=17.0.14
-  - zlib=1.2.13
