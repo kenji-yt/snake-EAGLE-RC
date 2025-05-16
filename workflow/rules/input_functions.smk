@@ -316,8 +316,6 @@ def make_rename_command(sample):
 
     return command
 
-
-
 # Muli QC input
 def multiqc_input(type):
     

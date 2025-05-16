@@ -88,5 +88,10 @@ rule restore_chromosome_names_sorted_bams:
         done
 
         rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
-        rm -r results/renamed_assemblies/
         """
+
+rule cleanup_eagle:
+    input:
+        expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES),
+    shell:
+       "rm -r results/renamed_assemblies" 
