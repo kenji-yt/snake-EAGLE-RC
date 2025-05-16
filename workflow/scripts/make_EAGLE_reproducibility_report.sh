@@ -4,6 +4,8 @@
 
 input_dir=$1
 n_cores=$2
+filtering_params=$3
+softclipping=$4
 report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
@@ -14,9 +16,21 @@ echo "" >> "${report}"
 echo "" >> "${report}"
 echo "Reproducibility report for snake-EAGLE-RC." >> "${report}"
 echo "Run date & time: ${CURRENT_DATETIME}" >> "${report}"
-echo "Number of allocated cores: ${n_cores}" >> "${report}" 
 echo "" >> "${report}"
 echo "" >> "${report}"
+
+echo "********************" >> "${report}"
+echo "*    Parameters    *" >> "${report}"
+echo "********************" >> "${report}"
+echo "" >> "${report}"
+echo "" >> "${report}"
+echo "Number of allocated cores: ${n_cores}" >> "${report}"
+echo "Input directory: ${input_dir}" >> "${report}"
+echo "Filtering parameters: ${filtering_params}" >> "${report}"
+echo "Soft clipping: ${softclipping}" >> "${report}"
+echo "" >> "${report}"
+echo "" >> "${report}"
+
 echo "********************" >> "${report}"
 echo "* Operating System *" >> "${report}"
 echo "********************" >> "${report}"
@@ -99,7 +113,6 @@ echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
 eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed 's/v//g')
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
-echo "fastqc=0.12.1" >> "${report}"
 echo "fastp=0.24.0" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "star=2.7.11b" >> "${report}"

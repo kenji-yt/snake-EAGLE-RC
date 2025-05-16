@@ -20,9 +20,16 @@ if len(config) == 0:
 
 INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 SCRIPTS_DIR = config.get("SCRIPTS_DIR", f"{workflow.basedir}/scripts") # For integration into HEAL (reverse dependency)
-TRIMMING = config.get("TRIMMING", True)
-if not isinstance(TRIMMING, bool):
-    raise ValueError("Error: TRIMMING must be either True or False.")
+FILTER = config.get("FILTER", True)
+if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) == 1)):
+    raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
+if isinstance(FILTER, str):
+    FILTER_PARAMS = FILTER
+    FILTER = True
+elif FILTER is True:
+    FILTER_PARAMS = "Default"
+elif FILTER is False:
+    FILTER_PARAMS = "No filtering"
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
@@ -98,7 +105,7 @@ include: "rules/alignment.smk"
 include: "rules/input_functions.smk"
 include: "rules/quality_check.smk"
 include: "rules/read_sorting.smk"
-include: "rules/trimming.smk"
+include: "rules/filtering.smk"
 
 rule all:
     input:
@@ -112,7 +119,9 @@ rule make_reproducibility_report:
         "results/snake_EAGLE_RC_reproducibility_report.txt"
     params:
         scripts=f"{SCRIPTS_DIR}",
-        cores=workflow.cores
+        cores=workflow.cores,
+        filtering=FILTER_PARAMS,
+        soft_clip=SOFT_CLIP,
     threads:1
     shell:
-        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores}"
+        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering} {params.soft_clip}"

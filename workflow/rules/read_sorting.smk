@@ -46,14 +46,13 @@ rule read_sorting:
         "../envs/read_sorting.yaml"
     shell:
         """
-        bash {input.script} > {log} 2>&1
+        bash {input.script} 2>&1 | tee -a {params.fail_log}
         status=$?
-        if [ $status -ne 0 ]; then
-            mv {log} {params.fail_log}
-            exit $status
+        if [ $status -eq 0 ]; then # Guarantees rerunning following failure. 
+            mv {params.fail_log} {log}
         fi
+        exit $status
         """
-
 
 
 rule change_sorted_bam_filenames_and_delete_renamed_assemblies: 

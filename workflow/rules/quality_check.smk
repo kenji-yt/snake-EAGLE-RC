@@ -1,30 +1,9 @@
-#################
-## FastQC rule ##
-#################
-
-rule fastqc:
-    input:
-        f"{INPUT_DIR}/polyploids/"+"{read_file}",
-    output:
-        html="results/fastqc/{read_file}.html",
-        zip="results/fastqc/{read_file}_fastqc.zip",  # the suffix _fastqc.zip is necessary for multiqc to find the file. If not using multiqc, you are free to choose an arbitrary filename
-    params:
-        extra="--quiet",
-    log:
-        "results/logs/fastqc/{read_file}.log",
-    resources:
-        mem_mb=lambda wildcards, input, threads: min(input.size_mb + 1000, 10000 * threads)
-    threads: workflow.cores
-    wrapper:
-        "v4.7.2/bio/fastqc"
-
-
 ####################
 ## Qualimap rules ##
 ####################
 
 ### There is a RNA seq qualimap...
-rule qualimap_rule:
+rule qualimap:
     input:
         bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
     output:
@@ -59,7 +38,6 @@ rule sort_bams:
 ###################
 
 # Multi QC report
-
 
 rule multiqc_dir:
     input:

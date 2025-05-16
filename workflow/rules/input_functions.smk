@@ -1,5 +1,12 @@
 #### Input functions ####
 
+# get filter parameters
+def get_filter_params():
+    if FILTER_PARAMS in ("No filtering", "Default"):
+        return ""
+    else:
+        return FILTER_PARAMS
+
 # get assembly
 def get_assembly(progenitor):
     
@@ -21,7 +28,6 @@ def get_assembly(progenitor):
         raise ValueError(error_msg)
 
     return fasta_files[0]
-
 
 
 # get read input for trimming
@@ -63,11 +69,11 @@ def get_read_files_to_trim(sample):
 # get read input
 def get_read_files(sample):
 
-    if TRIMMING==True:
+    if FILTER==True:
         if len(sample_files[sample]) == 2:
 
-            fq1_path=f"results/trimmed/{sample}/{sample}_R1_trimmed.fastq"
-            fq2_path=f"results/trimmed/{sample}/{sample}_R2_trimmed.fastq"
+            fq1_path=f"results/fastp/{sample}/{sample}_R1_filtered.fastq"
+            fq2_path=f"results/fastp/{sample}/{sample}_R2_filtered.fastq"
 
             if DATA_TYPE=="RNA":
                 return {'fq1': fq1_path, 'fq2': fq2_path}
@@ -80,7 +86,7 @@ def get_read_files(sample):
         
         elif len(sample_files[sample]) == 1:
 
-            fq_path=f"results/trimmed/{sample}/{sample}_trimmed.fastq"
+            fq_path=f"results/fastp/{sample}/{sample}_filtered.fastq"
 
             if DATA_TYPE=="RNA":
                 return {'fq1': fq_path}
@@ -176,7 +182,7 @@ def get_read_files(sample):
 # get eagle-rc input
 def get_bams(sample):
 
-    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
+    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned_sorted.bam" for progenitor in PROGENITORS}
 
 
 # get renamed assemblies
@@ -321,16 +327,20 @@ def multiqc_input(type):
     input = []
 
     input.extend(
-        expand("results/fastqc/{read_file}_fastqc.zip", read_file=all_read_paths)
-    )
-    
-    input.extend(
             expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
         )
     
     input.extend(
             expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES)     
         )
+
+    if FILTER != False:
+        for sample in SAMPLES:
+            if len(sample_files[sample]) == 1:
+                input.extend([f"results/fastp/{sample}/{sample}_se.json"])
+            elif len(sample_files[sample]) == 2:
+                input.extend([f"results/fastp/{sample}/{sample}_pe.json"])
+
 
     return input
 

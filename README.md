@@ -9,9 +9,7 @@ A Snakemake workflow around [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=rea
 
 This workflow (snake-EAGLE-RC) is made to facilitate the read sorting process. It does this by automating the whole process so that you can easily process a large number of samples. The workflow also aims to improve reproducibility by providing a reproducibility report at the end which contains the md5sums of each input and (some) output files and the version (or download date) of each tool used in the analysis. 
 
-*snake-EAGLE-RC* works for RNA, DNA and WGBS data and allows any number of genomes (any ploidy level for allopolyploids). It performs only the most basic steps required for read sorting (using --ngi mode of EAGLE-RC). Namely, it aligns the reads to each reference genome and passes these aligments to EAGLE-RC for sorting. Additionnaly, a few quality checks are performed on the input data and alignment. These are done with fastqc and qualimap and reported in 'results/MultiQC/multiqc_report.html'.
-
-**IMPORTANT:** This means it assumes the raw data has already been processed appropriately. Depending on your data this could mean trimming adapters, removing low quality reads or checking bisulfite conversion rates. The tools also does not remove duplicate reads as this is desirable only in some situations. You can judge if you wish to do that once the reads have been sorted or remove them pre-alignment. If you wish to (double)check the quality of the data before running the whole workflow you can run it only until fastqc (see Analysis section below). 
+*snake-EAGLE-RC* works for RNA, DNA and WGBS data and performs read sorting for up to three subgenomes/progenitors (using --ngi mode of EAGLE-RC). 
 
 ## Installation 
 
@@ -60,18 +58,14 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 
 The outputs will now be generated in a results directory within the snake-EAGLE-RC directory. 
 
+#### Quality Check
 
-#### Memory allocation
-Some steps in the analysis will automatically determine how much memory they will request. You can set maximal resource allocation using the flag:
-```
-snakemake --resources mem_mb='max_memory' 
-```
-With 'max_memory' replaced by the maximal amount of memory you wish the run to use in megabyte. 
-Make sure to also add the other flags shown above. 
+Quality assessments are performed for the input data ([fastqc](https://github.com/s-andrews/FastQC)) and for the alignments ([qualimap](http://qualimap.conesalab.org/)). You can run the workflow only until these quality assessement steps using "--until fastqc" or "--until qualimap". After verifying the quality, runing the snakemake command will resume the workflow from the quality check step onwards. In the end, all quality checks are reported in 'results/MultiQC/multiqc_report.html'.
 
-#### Quick Quality Check
-If you want to use the workflow to automatically verify the quality of the input data for all samples you can run only the fastqc step:
-```
-snakemake --rule fastqc 
-```
-Make sure to also add the other flags shown above. 
+#### Trimming
+
+By default the workflow performs trimming using [fastq](https://github.com/OpenGene/fastp). You can set the config argument "TRIMMING=false" to avoid trimming.
+
+#### Additional considerations
+
+Depending on your data you might want to remove low quality reads or checking bisulfite conversion rates independently before running the workflow. snake-EAGLE-RC also does not remove duplicate reads as this is desirable only in some situations. You can judge if you wish to do that once the reads have been sorted or remove them pre-alignment. 
