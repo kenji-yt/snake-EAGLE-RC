@@ -1,11 +1,11 @@
 rule install_eagle:
     output:
-        eagle_bin=directory("results/eagle_rc/eagle_intallation/"),
+        eagle_bin=directory("results/eagle_rc/eagle_installation"),
     log:
         "results/logs/eagle_rc/build_eagle.log",
     params:
-        eagle_install_dir="results/eagle_rc/eagle_intallation",
-        htslib_install_dir="results/eagle_rc/eagle_intallation/htslib",
+        eagle_install_dir="results/eagle_rc/eagle_installation",
+        htslib_install_dir="results/eagle_rc/eagle_installation/htslib",
     conda:
         "../envs/build_eagle.yaml"
     shell:
@@ -20,12 +20,12 @@ rule install_eagle:
 rule make_read_sorting_script:
     input:
         unpack(lambda wildcards: get_bams(wildcards.sample)),
-        eagle_installation="results/eagle_rc/eagle_intallation",
+        eagle_installation="results/eagle_rc/eagle_installation",
     output:
         "results/eagle_rc/{sample}/sorting_script.sh"
     params:
         sample_name="{sample}",
-        assemblies=get_renamed_assemblies(PROGENITORS),
+        assemblies=get_renamed_assemblies_dict(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}",
         sorting_log="results/logs/eagle_rc/sorting/{sample}.log"
@@ -56,13 +56,13 @@ rule read_sorting:
         """
 
 
-rule change_sorted_bam_filenames_and_delete_renamed_assemblies: 
+rule change_sorted_bam_filenames: 
     input:
         log="results/logs/eagle_rc/sorting/{sample}.log",
     log:
         "results/logs/eagle_rc/renaming_files/{sample}.log",
     run:
-        command=make_rename_and_remove_command(wildcards.sample)
+        command=make_rename_command(wildcards.sample)
         shell(command)
 
 
@@ -88,4 +88,5 @@ rule restore_chromosome_names_sorted_bams:
         done
 
         rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
+        rm -r results/renamed_assemblies/
         """

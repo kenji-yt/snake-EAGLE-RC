@@ -185,8 +185,8 @@ def get_bams(sample):
     return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned_sorted.bam" for progenitor in PROGENITORS}
 
 
-# get renamed assemblies
-def get_renamed_assemblies(progenitors): 
+# get renamed assemblies dictionary
+def get_renamed_assemblies_dict(progenitors): 
     
     assembly_files = {}
     for progenitor in progenitors:
@@ -296,15 +296,12 @@ def make_eagle_command(input, assemblies, params, output):
         raise ValueError(error_msg)
 
 
-
-def make_rename_and_remove_command(sample):
+def make_rename_command(sample):
 
     command=""
     if len(PROGENITORS) == 2:
 
         for index, progenitor in enumerate(PROGENITORS):
-
-            command += f"rm -r results/renamed_assemblies/{progenitor} 2>&1 | tee -a  results/logs/renaming_assemblies/deleting/{sample}.log && "
             
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
