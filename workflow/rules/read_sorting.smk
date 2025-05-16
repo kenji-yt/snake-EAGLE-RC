@@ -12,6 +12,7 @@ rule install_eagle:
         """
         git clone https://github.com/tony-kuo/eagle.git {params.eagle_install_dir}
         git clone --recursive https://github.com/samtools/htslib.git {params.htslib_install_dir}
+        make -C {params.htslib_install_dir}
         make -C {params.eagle_install_dir}
         """
 
@@ -37,7 +38,8 @@ rule make_read_sorting_script:
 
 rule read_sorting:
     input:
-        script="results/eagle_rc/{sample}/sorting_script.sh"
+        script="results/eagle_rc/{sample}/sorting_script.sh",
+        assemblies=get_renamed_assemblies(PROGENITORS),
     log:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
