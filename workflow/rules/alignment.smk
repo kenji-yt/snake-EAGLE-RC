@@ -2,7 +2,7 @@ rule rename_assemblies:
     input:
         lambda wildcards: get_assembly(wildcards.progenitor),
     output:
-        temp("results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa")
+        "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
     log:
         "results/logs/assembly_renaming/{progenitor}.log"
     shell: 

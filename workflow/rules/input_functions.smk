@@ -304,7 +304,7 @@ def make_rename_and_remove_command(sample):
 
         for index, progenitor in enumerate(PROGENITORS):
 
-            #command += f"rm -r results/renamed_assemblies/{progenitor} 2>&1 | tee -a  results/logs/renaming_assemblies/deleting/{sample}.log && "
+            command += f"rm -r results/renamed_assemblies/{progenitor} 2>&1 | tee -a  results/logs/renaming_assemblies/deleting/{sample}.log && "
             
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.ref.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.ref.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
