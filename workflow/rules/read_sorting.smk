@@ -39,7 +39,6 @@ rule make_read_sorting_script:
 rule read_sorting:
     input:
         script="results/eagle_rc/{sample}/sorting_script.sh",
-        assemblies=get_renamed_assemblies(PROGENITORS),
     log:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
