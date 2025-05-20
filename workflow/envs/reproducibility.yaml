@@ -1,0 +1,7 @@
+name: reproducibility_report
+channels:
+  - conda-forge
+dependencies: 
+  - gcc
+  - binutils
+  - git=2.45.2 
