@@ -12,7 +12,7 @@ rule filtering_se_fastp:
     params:
         extra=FILTER_PARAMS
     wrapper:
-        "v5.10.0/bio/fastp"
+        "v6.2.0/bio/fastp"
 
 
 rule filtering_pe_fastp:
@@ -28,4 +28,4 @@ rule filtering_pe_fastp:
         "results/logs/fastp/{sample}.log"
     threads: workflow.cores
     wrapper:
-        "v5.10.0/bio/fastp"
+        "v6.2.0/bio/fastp"

@@ -6,6 +6,7 @@ input_dir=$1
 n_cores=$2
 filtering_params=$3
 softclipping=$4
+workflow_dir=$5
 report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
@@ -109,24 +110,37 @@ echo "" >> "${report}"
 
 version_snake_eagle_rc=$(git describe --tags --abbrev=0 | sed 's/v//g')
 echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
-
-eagle_version=$(git -C results/eagle_rc/eagle_intallation describe --tags --abbrev=0 | sed 's/v//g')
+eagle_version=$(git -C results/eagle_rc/eagle_installation describe --tags --abbrev=0 | sed 's/v//g')
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
-echo "fastp=0.24.0" >> "${report}"
-if [ $(basename "${input_dir}")=="RNA" ]; then
-    echo "star=2.7.11b" >> "${report}"
-elif [ $(basename "${input_dir}")=="DNA" ]; then
-    echo "bwa-mem2=2.2.1" >> "${report}"
-elif [ $(basename "${input_dir}")=="WGBS" ]; then
-    echo "bowtie2=2.5.4" >> "${report}"
-    echo "bismark=0.24.2" >> "${report}"
-fi
-echo $(grep 'samtools' workflow/envs/samtools.yaml | sed 's/- s/s/g') >> "${report}" 
-echo $(grep 'git' workflow/envs/build_eagle.yaml | sed 's/- g/g/g') >> "${report}"
-echo $(grep 'make' workflow/envs/build_eagle.yaml | sed 's/- m/m/g') >> "${report}"  
-echo "qualimap=2.3" >> "${report}"
+echo "General analysis tools used in their snakemake wrappers:" >> "${report}"
 echo "snakemake wrappers release=4.7.2" >> "${report}"
+echo "  - qualimap=2.3" >> "${report}"
+if [ $(basename "${input_dir}")=="RNA" ]; then
+    echo "  - star=2.7.11b" >> "${report}"
+elif [ $(basename "${input_dir}")=="DNA" ]; then
+    echo "  - bwa-mem2=2.2.1" >> "${report}"
+elif [ $(basename "${input_dir}")=="WGBS" ]; then
+    echo "  - bowtie2=2.5.4" >> "${report}"
+    echo "  - bismark=0.24.2" >> "${report}"
+fi
+echo "snakemake wrappers release=6.2.0" >> "${report}"
+echo "  - fastp=0.24.1" >> "${report}"
+echo "Tools used to sort bams for qualimap:" >> "${report}"
+grep 'samtools' workflow/envs/samtools.yaml >> "${report}" 
+echo "Tools used to install eagle:" >> "${report}"
+grep 'git' workflow/envs/build_eagle.yaml >> "${report}"
+grep 'make' workflow/envs/build_eagle.yaml >> "${report}"
+grep 'zlib' workflow/envs/build_eagle.yaml >> "${report}"
+grep 'xz' workflow/envs/build_eagle.yaml >> "${report}"
+gcc_version=$(gcc --version | awk '{print $4}' | head -1)
+echo "  - gcc='${gcc_version}'" >> "${report}"   
+conda list binutils | grep "binutils " | awk '{print "  - "$1"="$2}' >> "${report}" 
+echo "Tools used for hexaploid read sorting:" >> "${report}"
+grep 'python' workflow/envs/read_sorting.yaml >> "${report}"
+grep 'scipy' workflow/envs/read_sorting.yaml >> "${report}"
+grep 'numpy' workflow/envs/read_sorting.yaml >> "${report}"   
+
 echo "" >> "${report}"
 echo "" >> "${report}"
 echo "" >> "${report}"

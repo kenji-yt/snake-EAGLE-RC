@@ -3,4 +3,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - samtools=1.21 # If changed, make sure you update the HEAL (downstream dependency) reproducibility report.
+  - samtools=1.21 

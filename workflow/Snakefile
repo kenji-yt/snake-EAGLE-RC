@@ -122,6 +122,9 @@ rule make_reproducibility_report:
         cores=workflow.cores,
         filtering=FILTER_PARAMS,
         soft_clip=SOFT_CLIP,
+        workflow_dir=workflow.basedir
     threads:1
+    conda:
+        "envs/reproducibility.yaml"
     shell:
-        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering} {params.soft_clip}"
+        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering} {params.soft_clip} {params.workflow_dir}"

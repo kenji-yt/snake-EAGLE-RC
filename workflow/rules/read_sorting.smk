@@ -12,7 +12,6 @@ rule install_eagle:
         """
         git clone https://github.com/tony-kuo/eagle.git {params.eagle_install_dir}
         git clone --recursive https://github.com/samtools/htslib.git {params.htslib_install_dir}
-        make -C {params.htslib_install_dir}
         make -C {params.eagle_install_dir}
         """
 
