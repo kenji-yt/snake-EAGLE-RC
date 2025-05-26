@@ -38,7 +38,7 @@ rule make_read_sorting_script:
 rule read_sorting:
     input:
         script="results/eagle_rc/{sample}/sorting_script.sh",
-    log:
+    output:
         "results/logs/eagle_rc/sorting/{sample}.log",
     params:
         fail_log="results/logs/eagle_rc/sorting/failed_{sample}.log"
@@ -49,7 +49,7 @@ rule read_sorting:
         bash {input.script} 2>&1 | tee -a {params.fail_log}
         status=$?
         if [ $status -eq 0 ]; then # Guarantees rerunning following failure. 
-            mv {params.fail_log} {log}
+            mv {params.fail_log} {output}
         fi
         exit $status
         """

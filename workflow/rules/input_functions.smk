@@ -227,7 +227,11 @@ def make_eagle_command(input, assemblies, params, output):
         
         command += f"> {params['output_prefix']}_reads.list "
         
-        script_content = f"#!/bin/bash\n{command}\n"
+        check_it=""
+        for index, progenitor in enumerate(PROGENITORS):
+            check_it += f"md5sum {assemblies[progenitor]}\n" 
+
+        script_content = f"#!/bin/bash\n{check_it}{command}\n"
         
         return script_content
 
