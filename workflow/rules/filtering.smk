@@ -2,8 +2,8 @@ rule filtering_se_fastp:
     input:
         unpack(lambda wildcards: get_read_files_to_trim(wildcards.sample)),
     output:
-        trimmed="results/fastp/{sample}/{sample}_filtered.fastq",
-        failed="results/fastp/{sample}{sample}.failed.fastq",
+        trimmed="results/fastp/{sample}/{sample}_filtered.fastq.gz",
+        failed="results/fastp/{sample}{sample}.failed.fastq.gz",
         html="results/fastp/{sample}/{sample}.html",
         json="results/fastp/{sample}/{sample}_se.json"
     log:
@@ -19,9 +19,9 @@ rule filtering_pe_fastp:
     input:
         unpack(lambda wildcards: get_read_files_to_trim(wildcards.sample)),
     output:
-        trimmed=["results/fastp/{sample}/{sample}_R1_filtered.fastq", "results/fastp/{sample}/{sample}_R2_filtered.fastq"],
-        unpaired="results/fastp/{sample}/{sample}.unpaired.fastq",
-        failed="results/fastp/{sample}/{sample}.failed.fastq",
+        trimmed=["results/fastp/{sample}/{sample}_R1_filtered.fastq.gz", "results/fastp/{sample}/{sample}_R2_filtered.fastq.gz"],
+        unpaired="results/fastp/{sample}/{sample}.unpaired.fastq.gz",
+        failed="results/fastp/{sample}/{sample}.failed.fastq.gz",
         html="results/fastp/{sample}/{sample}.html",
         json="results/fastp/{sample}/{sample}_pe.json"
     log:

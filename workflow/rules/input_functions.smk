@@ -72,8 +72,8 @@ def get_read_files(sample):
     if FILTER==True:
         if len(sample_files[sample]) == 2:
 
-            fq1_path=f"results/fastp/{sample}/{sample}_R1_filtered.fastq"
-            fq2_path=f"results/fastp/{sample}/{sample}_R2_filtered.fastq"
+            fq1_path=f"results/fastp/{sample}/{sample}_R1_filtered.fastq.gz"
+            fq2_path=f"results/fastp/{sample}/{sample}_R2_filtered.fastq.gz"
 
             if DATA_TYPE=="RNA":
                 return {'fq1': fq1_path, 'fq2': fq2_path}
@@ -86,7 +86,7 @@ def get_read_files(sample):
         
         elif len(sample_files[sample]) == 1:
 
-            fq_path=f"results/fastp/{sample}/{sample}_filtered.fastq"
+            fq_path=f"results/fastp/{sample}/{sample}_filtered.fastq.gz"
 
             if DATA_TYPE=="RNA":
                 return {'fq1': fq_path}

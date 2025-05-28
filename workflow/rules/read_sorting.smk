@@ -44,6 +44,7 @@ rule read_sorting:
         fail_log="results/logs/eagle_rc/sorting/failed_{sample}.log"
     conda:
         "../envs/read_sorting.yaml"
+    threads: workflow.cores # sad but due to weird https://github.com/tony-kuo/eagle/issues/12#issuecomment-2912831644
     shell:
         """
         bash {input.script} 2>&1 | tee -a {params.fail_log}
