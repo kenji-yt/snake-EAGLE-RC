@@ -115,7 +115,6 @@ echo "eagle-rc=${eagle_version}" >> "${report}"
 
 echo "General analysis tools used in their snakemake wrappers:" >> "${report}"
 echo "snakemake wrappers release=4.7.2" >> "${report}"
-echo "  - qualimap=2.3" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "  - star=2.7.11b" >> "${report}"
 elif [ $(basename "${input_dir}")=="DNA" ]; then
@@ -126,8 +125,10 @@ elif [ $(basename "${input_dir}")=="WGBS" ]; then
 fi
 echo "snakemake wrappers release=6.2.0" >> "${report}"
 echo "  - fastp=0.24.1" >> "${report}"
-echo "Tools used to sort bams for qualimap:" >> "${report}"
-grep 'samtools' workflow/envs/samtools.yaml >> "${report}" 
+echo "Tool used for sorting bams:" >> "${report}"
+grep 'samtools' workflow/envs/samtools.yaml >> "${report}"
+echo "Tool used for quality assessment of classified bam files:" >> "${report}"
+grep "qualimap" workflow/envs/qualimap.yaml >> "${report}"
 echo "Tools used to install eagle:" >> "${report}"
 grep 'git' workflow/envs/build_eagle.yaml >> "${report}"
 grep 'make' workflow/envs/build_eagle.yaml >> "${report}"
@@ -136,10 +137,10 @@ grep 'xz' workflow/envs/build_eagle.yaml >> "${report}"
 gcc_version=$(gcc --version | awk '{print $4}' | head -1)
 echo "  - gcc='${gcc_version}'" >> "${report}"   
 conda list binutils | grep "binutils " | awk '{print "  - "$1"="$2}' >> "${report}" 
-echo "Tools used for hexaploid read sorting:" >> "${report}"
-grep 'python' workflow/envs/read_sorting.yaml >> "${report}"
-grep 'scipy' workflow/envs/read_sorting.yaml >> "${report}"
-grep 'numpy' workflow/envs/read_sorting.yaml >> "${report}"   
+echo "Tools used for hexaploid read classification:" >> "${report}"
+grep 'python' workflow/envs/read_classification.yaml >> "${report}"
+grep 'scipy' workflow/envs/read_classification.yaml >> "${report}"
+grep 'numpy' workflow/envs/read_classification.yaml >> "${report}"   
 
 echo "" >> "${report}"
 echo "" >> "${report}"

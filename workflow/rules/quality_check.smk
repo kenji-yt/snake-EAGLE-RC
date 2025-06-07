@@ -2,36 +2,36 @@
 ## Qualimap rules ##
 ####################
 
-### There is a RNA seq qualimap...
 rule qualimap:
     input:
-        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
+        classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
     output:
-        directory("results/qualimap/{sample}/{progenitor}"),
+        directory("results/qualimap/{sample}"),
     log:
-        "results/logs/qualimap/{sample}/{progenitor}.log",
-    resources:
-        mem_mb=lambda wildcard, input: input.size_mb+1000
+        "results/logs/qualimap/{sample}.log",
+    conda:
+        "../envs/qualimap.yaml"
     threads: workflow.cores 
     params:
-        extra=f"-nt {workflow.cores}",
-    wrapper:
-       "v4.7.2/bio/qualimap/bamqc"
+        threads=workflow.cores,
+    run:
+        qualimap_command=make_qualimap_command(wildcards.sample, log, params.threads)
+        shell(qualimap_command)
 
-
-rule sort_bams:
+rule RNA_qualimap:
     input:
-        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned.bam",
+        classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
     output:
-        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
+        directory("results/qualimap_RNA/{sample}"),
     log:
-        "results/logs/qualimap/sorting/{sample}/{progenitor}.log",
+        "results/logs/qualimap_RNA/{sample}.log",
     conda:
-        "../envs/samtools.yaml"
-    threads: workflow.cores # adding here so snakemake knows how much this rule uses (idk if necessary)
-    shell:
-        "samtools sort -T .temp -@ {threads} {input.bam} > {output.bam}"
-
+        "../envs/qualimap.yaml"
+    threads: 1
+    run:
+        RNA_qualimap_command=make_RNA_qualimap_command(wildcards.sample, log)
+        shell(RNA_qualimap_command)
+        
 
 ###################
 #### Multi QC #####

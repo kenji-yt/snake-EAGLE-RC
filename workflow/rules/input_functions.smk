@@ -178,6 +178,48 @@ def get_read_files(sample):
                 'reads':file_path
             }
 
+#def get_gtf(wildcards):
+
+#    dir_path = os.path.join(INPUT_DIR, "progenitors", wildcards.progenitor)
+#
+#    gtf_files = glob.glob(os.path.join(dir_path, "*.gtf"))
+#    
+#    if len(gtf_files) > 1:
+#        error_msg=f"ERROR: Ambiguous GTF file. More than one .gtf file found in {dir_path}. Exiting..."
+#        raise ValueError(error_msg)
+#    
+#    elif len(gtf_files) == 0:
+#        error_msg=f"ERROR: No GTF file found in {dir_path}. Exiting..."
+#        raise ValueError(error_msg)
+#
+#    return str(gtf_files[0]) if gtf_files else False
+
+def check_gtf():
+
+    prog_dir = os.path.join(INPUT_DIR, "progenitors")
+    subdirs = [os.path.join(prog_dir, d) for d in os.listdir(prog_dir)
+               if os.path.isdir(os.path.join(prog_dir, d))]
+
+
+    gtf_counts = {}
+
+    for subdir in subdirs:
+        gtf_files = [f for f in os.listdir(subdir)
+                     if f.endswith(".gtf") and os.path.isfile(os.path.join(subdir, f))]
+        gtf_counts[subdir] = len(gtf_files)
+
+    counts = list(gtf_counts.values())
+
+    if all(count == 0 for count in counts):
+        return False
+
+    if any(count > 1 for count in counts):
+        raise ValueError("One or more progenitor directories contain more than one .gtf file.")
+
+    if any(count == 0 for count in counts):
+        raise ValueError("Not every progenitor directory has a .gtf file.")
+
+    return True
 
 # get eagle-rc input
 def get_bams(sample):
@@ -311,7 +353,7 @@ def make_rename_command(sample):
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.mul.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.mul.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.alt.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.alt.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
             command += f"mv results/eagle_rc/{sample}/tmp_renamed/{sample}_classified{index+1}.unk.bam results/eagle_rc/{sample}/tmp_renamed/{sample}_classified_{progenitor}.unk.bam 2>&1 | tee -a  results/logs/eagle_rc/renaming_files/{sample}.log && "
-    
+
         command = command.rstrip(' && ')
 
     elif(PROGENITORS) == 3:
@@ -320,18 +362,55 @@ def make_rename_command(sample):
 
     return command
 
+def make_qualimap_command(sample, log, threads):
+    
+    commands = []
+    commands.append(f"mkdir -p results/qualimap/{sample} 2> {log}")
+    for progenitor in PROGENITORS:
+
+        commands.append(
+            f"qualimap -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
+        )
+
+    command = " && ".join(commands)
+    return command
+
+def make_RNA_qualimap_command(sample, log):
+
+    commands = []
+    commands.append(f"mkdir -p results/qualimap_RNA/{sample} 2> {log}")
+    for progenitor in PROGENITORS:
+
+        gtf_file = glob.glob(f"{INPUT_DIR}/progenitors/{progenitor}/*.gtf")[0]
+
+        commands.append(
+            f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML > {log} 2>&1"
+        )
+
+    command = " && ".join(commands)
+    return command
+
 # Muli QC input
 def multiqc_input(type):
     
     input = []
 
+    # To define the wildcards
     input.extend(
-            expand("results/qualimap/{sample}/{progenitor}", sample=SAMPLES, progenitor=PROGENITORS)     
-        )
-    
-    input.extend(
-            expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES)     
-        )
+        expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS) 
+    )
+
+    any_gtf = check_gtf
+
+    if any_gtf == False:
+        input.extend(
+                expand("results/qualimap/{sample}", sample=SAMPLES)  
+            )
+    else:
+        input.extend(
+                    expand("results/qualimap_RNA/{sample}", sample=SAMPLES)     
+                )
+
 
     if FILTER != False:
         for sample in SAMPLES:
@@ -342,5 +421,3 @@ def multiqc_input(type):
 
 
     return input
-
-

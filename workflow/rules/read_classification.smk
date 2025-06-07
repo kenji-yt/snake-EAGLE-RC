@@ -16,18 +16,32 @@ rule install_eagle:
         """
 
 
-rule make_read_sorting_script:
+rule sort_bams:
+    input:
+        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned.bam",
+    output:
+        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
+    log:
+        "results/logs/eagle_rc/input_sorting/{sample}/{progenitor}.log",
+    conda:
+        "../envs/samtools.yaml"
+    threads: workflow.cores # adding here so snakemake knows how much this rule uses (idk if necessary)
+    shell:
+        "samtools sort -T .temp -@ {threads} {input.bam} > {output.bam}"
+
+
+rule make_read_classification_script:
     input:
         unpack(lambda wildcards: get_bams(wildcards.sample)),
         eagle_installation="results/eagle_rc/eagle_installation",
     output:
-        "results/eagle_rc/{sample}/sorting_script.sh"
+        "results/eagle_rc/{sample}/classification_script.sh"
     params:
         sample_name="{sample}",
         assemblies=get_renamed_assemblies_dict(PROGENITORS),
         output_prefix="results/eagle_rc/{sample}/tmp_renamed/{sample}_classified",
         output_hexa="results/eagle_rc/{sample}/tmp_renamed/{sample}",
-        sorting_log="results/logs/eagle_rc/sorting/{sample}.log"
+        classification_log="results/logs/eagle_rc/classification/{sample}.log"
     run:
         script_content=make_eagle_command(input, params.assemblies, params, output)
         script_filename = output[0]
@@ -35,30 +49,30 @@ rule make_read_sorting_script:
             script_file.write(script_content)
 
 
-rule read_sorting:
+rule read_classification:
     input:
-        script="results/eagle_rc/{sample}/sorting_script.sh",
+        script="results/eagle_rc/{sample}/classification_script.sh",
     output:
-        "results/logs/eagle_rc/sorting/{sample}.log",
+        "results/logs/eagle_rc/classification/{sample}.log",
     params:
-        fail_log="results/logs/eagle_rc/sorting/failed_{sample}.log"
+        tmp_log="results/logs/eagle_rc/classification/tmp_or_failed_{sample}.log"
     conda:
-        "../envs/read_sorting.yaml"
+        "../envs/read_classification.yaml"
     threads: workflow.cores # sad but due to weird https://github.com/tony-kuo/eagle/issues/12#issuecomment-2912831644
     shell:
         """
-        bash {input.script} 2>&1 | tee -a {params.fail_log}
+        bash {input.script} 2>&1 | tee -a {params.tmp_log}
         status=$?
         if [ $status -eq 0 ]; then # Guarantees rerunning following failure. 
-            mv {params.fail_log} {output}
+            mv {params.tmp_log} {output}
         fi
         exit $status
         """
 
 
-rule change_sorted_bam_filenames: 
+rule change_classified_bam_filenames: 
     input:
-        log="results/logs/eagle_rc/sorting/{sample}.log",
+        log="results/logs/eagle_rc/classification/{sample}.log",
     log:
         "results/logs/eagle_rc/renaming_files/{sample}.log",
     run:
@@ -66,7 +80,7 @@ rule change_sorted_bam_filenames:
         shell(command)
 
 
-rule restore_chromosome_names_sorted_bams: 
+rule restore_chromosome_names_classified_bams: 
     input:
         log="results/logs/eagle_rc/renaming_files/{sample}.log",
     log:
@@ -87,11 +101,9 @@ rule restore_chromosome_names_sorted_bams:
             rm $bam $good_header $bad_header
         done
 
-        rm -r results/eagle_rc/{wildcards.sample}/tmp_renamed/
-        """
+        rm -rf results/eagle_rc/{wildcards.sample}/tmp_renamed/
 
-rule cleanup_eagle:
-    input:
-        expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES),
-    shell:
-       "rm -r results/renamed_assemblies" 
+        if [ -d "results/renamed_assemblies" ]; then
+            rm -rf "results/renamed_assemblies" 2>&1 | tee -a {log}
+        fi
+        """
