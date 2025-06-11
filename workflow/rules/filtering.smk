@@ -1,4 +1,4 @@
-rule filtering_se_fastp:
+rule fastp_se:
     input:
         unpack(lambda wildcards: get_read_files_to_trim(wildcards.sample)),
     output:
@@ -15,7 +15,7 @@ rule filtering_se_fastp:
         "v6.2.0/bio/fastp"
 
 
-rule filtering_pe_fastp:
+rule fastp_pe:
     input:
         unpack(lambda wildcards: get_read_files_to_trim(wildcards.sample)),
     output:
