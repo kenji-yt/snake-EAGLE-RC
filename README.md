@@ -72,7 +72,7 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 
 The outputs will now be generated in a results directory within the snake-EAGLE-RC directory. 
 
-#### Quality Check & Filtering
+## Quality Check & Filtering
 
 Quality check, filtering and trimming can be performed for the input data using [fastp](https://github.com/OpenGene/fastp). You can run the workflow only until the this step using "--until fastp_se" or "fast_pe" for singe-end and paired-end respectively (Assuming only one data type in your input. If you have a mix of paired-end and single-end this wont work). After filtering and verifying the quality, running the snakemake command will resume the workflow from the fastp step onwards.  You can set the config argument "FILTERING=false" to avoid fastp filtering, trimming and reporting. By default, "FILTERING" is set to "True" such that the workflow performs trimming and filtering with fastp in default mode. If you wish to set your own fastp filtering and trimming parameters simply set the "FILTERING" variable to the flags you wish to pass to fastp (eg. "FILTERING='-q 20 -u 30'"). 
 
@@ -82,13 +82,13 @@ In the end, all quality checks are reported in 'results/MultiQC/multiqc_report.h
 
 ## Output 
 
-Results will be written to a directory called "results" inside the snake-EAGLE-RC directory. Inside you will find the following files and directories:
-    - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports. 
+Results will be written to a directory called "results" inside the snake-EAGLE-RC directory. In this directory you will find the following files and directories: 
     - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
-    - fastp (optional): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
+    - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
     - qualimap (or qualimap_RNA): Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
     - star/bismark/bwa: Contains bam files of the reads aligned to each subgenome. 
-    - logs: Contains logs for each analysis. 
+    - logs: Contains logs for each analysis.
+    - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports. 
     - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 
 
 ## Additional considerations

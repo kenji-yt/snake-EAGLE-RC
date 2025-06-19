@@ -400,7 +400,7 @@ def multiqc_input(type):
         expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS) 
     )
 
-    any_gtf = check_gtf
+    any_gtf = check_gtf()
 
     if any_gtf == False:
         input.extend(
