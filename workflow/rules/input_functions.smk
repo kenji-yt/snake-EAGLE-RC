@@ -369,7 +369,7 @@ def make_qualimap_command(sample, log, threads):
     for progenitor in PROGENITORS:
 
         commands.append(
-            f"qualimap -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
+            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
         )
 
     command = " && ".join(commands)
