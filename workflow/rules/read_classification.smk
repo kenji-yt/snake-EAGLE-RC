@@ -58,7 +58,7 @@ rule read_classification:
         tmp_log="results/logs/eagle_rc/classification/tmp_or_failed_{sample}.log"
     conda:
         "../envs/read_classification.yaml"
-    threads: workflow.cores # sad but due to weird https://github.com/tony-kuo/eagle/issues/12#issuecomment-2912831644
+    threads: 1 
     shell:
         """
         bash {input.script} 2>&1 | tee -a {params.tmp_log}

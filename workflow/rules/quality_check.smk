@@ -46,6 +46,8 @@ rule multiqc_dir:
         out = "results/MultiQC/multiqc_report.html",
     params:
         multiqcdir = lambda w, output: os.path.split(output.out)[0],
+    resources:
+        tmpdir="./tmp"
     log:
         "results/logs/multiqc.log",
     wrapper:
