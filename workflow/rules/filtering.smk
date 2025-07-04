@@ -8,7 +8,7 @@ rule fastp_se:
         json="results/fastp/{sample}/{sample}_se.json"
     log:
         "results/logs/fastp/{sample}.log"
-    threads: workflow.cores
+    threads: min(workflow.cores, 8)
     params:
         extra=FILTER_PARAMS
     wrapper:
@@ -26,6 +26,6 @@ rule fastp_pe:
         json="results/fastp/{sample}/{sample}_pe.json"
     log:
         "results/logs/fastp/{sample}.log"
-    threads: workflow.cores
+    threads: min(workflow.cores, 8)
     wrapper:
         "v6.2.0/bio/fastp"

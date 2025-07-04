@@ -397,7 +397,7 @@ def multiqc_input(type):
 
     # To define the wildcards
     input.extend(
-        expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS) 
+        expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned_sorted.bam", sample=SAMPLES, progenitor=PROGENITORS) 
     )
 
     any_gtf = check_gtf()
