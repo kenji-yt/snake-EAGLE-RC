@@ -415,9 +415,9 @@ def multiqc_input(type):
     if FILTER != False:
         for sample in SAMPLES:
             if len(sample_files[sample]) == 1:
-                input.extend([f"results/fastp/{sample}/{sample}_se.json"])
+                input.extend([f"results/fastp/{sample}/{sample}_se.fastp.json"])
             elif len(sample_files[sample]) == 2:
-                input.extend([f"results/fastp/{sample}/{sample}_pe.json"])
+                input.extend([f"results/fastp/{sample}/{sample}_pe.fastp.json"])
 
 
     return input

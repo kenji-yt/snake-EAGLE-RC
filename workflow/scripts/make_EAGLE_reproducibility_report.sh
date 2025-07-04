@@ -6,7 +6,7 @@ input_dir=$1
 n_cores=$2
 filtering_params=$3
 softclipping=$4
-workflow_dir=$5
+envs_dir=$5
 report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
@@ -126,21 +126,21 @@ fi
 echo "snakemake wrappers release=6.2.0" >> "${report}"
 echo "  - fastp=0.24.1" >> "${report}"
 echo "Tool used for sorting bams:" >> "${report}"
-grep 'samtools' workflow/envs/samtools.yaml >> "${report}"
+grep 'samtools' ${envs_dir}/samtools.yaml >> "${report}"
 echo "Tool used for quality assessment of classified bam files:" >> "${report}"
-grep "qualimap" workflow/envs/qualimap.yaml >> "${report}"
+grep "qualimap" ${envs_dir}/qualimap.yaml >> "${report}"
 echo "Tools used to install eagle:" >> "${report}"
-grep 'git' workflow/envs/build_eagle.yaml >> "${report}"
-grep 'make' workflow/envs/build_eagle.yaml >> "${report}"
-grep 'zlib' workflow/envs/build_eagle.yaml >> "${report}"
-grep 'xz' workflow/envs/build_eagle.yaml >> "${report}"
+grep 'git' ${envs_dir}/build_eagle.yaml >> "${report}"
+grep 'make' ${envs_dir}/build_eagle.yaml >> "${report}"
+grep 'zlib' ${envs_dir}/build_eagle.yaml >> "${report}"
+grep 'xz' ${envs_dir}/build_eagle.yaml >> "${report}"
 gcc_version=$(gcc --version | awk '{print $4}' | head -1)
 echo "  - gcc='${gcc_version}'" >> "${report}"   
 conda list binutils | grep "binutils " | awk '{print "  - "$1"="$2}' >> "${report}" 
 echo "Tools used for hexaploid read classification:" >> "${report}"
-grep 'python' workflow/envs/read_classification.yaml >> "${report}"
-grep 'scipy' workflow/envs/read_classification.yaml >> "${report}"
-grep 'numpy' workflow/envs/read_classification.yaml >> "${report}"   
+grep 'python' ${envs_dir}/read_classification.yaml >> "${report}"
+grep 'scipy' ${envs_dir}/read_classification.yaml >> "${report}"
+grep 'numpy' ${envs_dir}/read_classification.yaml >> "${report}"   
 
 echo "" >> "${report}"
 echo "" >> "${report}"

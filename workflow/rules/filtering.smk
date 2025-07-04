@@ -5,7 +5,7 @@ rule fastp_se:
         trimmed="results/fastp/{sample}/{sample}_filtered.fastq.gz",
         failed="results/fastp/{sample}{sample}.failed.fastq.gz",
         html="results/fastp/{sample}/{sample}.html",
-        json="results/fastp/{sample}/{sample}_se.json"
+        json="results/fastp/{sample}/{sample}_se.fastp.json"
     log:
         "results/logs/fastp/{sample}.log"
     threads: min(workflow.cores, 8)
@@ -23,7 +23,7 @@ rule fastp_pe:
         unpaired="results/fastp/{sample}/{sample}.unpaired.fastq.gz",
         failed="results/fastp/{sample}/{sample}.failed.fastq.gz",
         html="results/fastp/{sample}/{sample}.html",
-        json="results/fastp/{sample}/{sample}_pe.json"
+        json="results/fastp/{sample}/{sample}_pe.fastp.json"
     log:
         "results/logs/fastp/{sample}.log"
     threads: min(workflow.cores, 8)
