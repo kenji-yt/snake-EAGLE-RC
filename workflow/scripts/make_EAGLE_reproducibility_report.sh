@@ -114,6 +114,8 @@ eagle_version=$(git -C results/eagle_rc/eagle_installation describe --tags --abb
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
 echo "General analysis tools used in their snakemake wrappers:" >> "${report}"
+echo "snakemake wrappers release=3.3.3" >> "${report}"
+echo "  - MulitQC=1.19" >> "${report}"
 echo "snakemake wrappers release=4.7.2" >> "${report}"
 if [ $(basename "${input_dir}")=="RNA" ]; then
     echo "  - star=2.7.11b" >> "${report}"
@@ -124,7 +126,7 @@ elif [ $(basename "${input_dir}")=="WGBS" ]; then
     echo "  - bismark=0.24.2" >> "${report}"
 fi
 echo "snakemake wrappers release=6.2.0" >> "${report}"
-echo "  - fastp=0.24.1" >> "${report}"
+echo "  - fastp=0.24.1" >> "${report}" 
 echo "Tool used for sorting bams:" >> "${report}"
 grep 'samtools' ${envs_dir}/samtools.yaml >> "${report}"
 echo "Tool used for quality assessment of classified bam files:" >> "${report}"

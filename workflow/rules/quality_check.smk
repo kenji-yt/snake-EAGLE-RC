@@ -43,10 +43,8 @@ rule multiqc_dir:
     input:
         multiqc_input(DATA_TYPE),
     output:
-        out = "results/MultiQC/multiqc_report.html",
-    params:
-        multiqcdir = lambda w, output: os.path.split(output.out)[0],
+        out = "results/MultiQC/multiqc_report.html", 
     log:
         "results/logs/multiqc.log",
     wrapper:
-        "v2.9.1/bio/multiqc"
+        "v3.3.3/bio/multiqc"
