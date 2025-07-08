@@ -2,6 +2,12 @@
 ## Qualimap rules ##
 ####################
 
+rule sort_ref_bams:
+    input:
+        classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
+    output:
+        sort_ref_log=""
+        
 rule qualimap:
     input:
         classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",

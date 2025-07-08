@@ -10,6 +10,11 @@ envs_dir=$5
 report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
+# Remove renamed assemblies directory if it exists
+if [ -d "results/renamed_assemblies" ]; then
+    rm -rf "results/renamed_assemblies" 
+fi 
+
 echo "******************" >> "${report}"
 echo "* snake-EAGLE-RC *" >> "${report}"
 echo "******************" >> "${report}"

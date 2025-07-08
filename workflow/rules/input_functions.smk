@@ -178,22 +178,6 @@ def get_read_files(sample):
                 'reads':file_path
             }
 
-#def get_gtf(wildcards):
-
-#    dir_path = os.path.join(INPUT_DIR, "progenitors", wildcards.progenitor)
-#
-#    gtf_files = glob.glob(os.path.join(dir_path, "*.gtf"))
-#    
-#    if len(gtf_files) > 1:
-#        error_msg=f"ERROR: Ambiguous GTF file. More than one .gtf file found in {dir_path}. Exiting..."
-#        raise ValueError(error_msg)
-#    
-#    elif len(gtf_files) == 0:
-#        error_msg=f"ERROR: No GTF file found in {dir_path}. Exiting..."
-#        raise ValueError(error_msg)
-#
-#    return str(gtf_files[0]) if gtf_files else False
-
 def check_gtf():
 
     prog_dir = os.path.join(INPUT_DIR, "progenitors")

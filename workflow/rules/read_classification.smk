@@ -25,7 +25,7 @@ rule sort_bams:
         "results/logs/eagle_rc/input_sorting/{sample}/{progenitor}.log",
     conda:
         "../envs/samtools.yaml"
-    threads: workflow.cores # adding here so snakemake knows how much this rule uses (idk if necessary)
+    threads: workflow.cores
     shell:
         "samtools sort -T .temp -@ {threads} {input.bam} > {output.bam}"
 
@@ -58,6 +58,8 @@ rule read_classification:
         tmp_log="results/logs/eagle_rc/classification/tmp_or_failed_{sample}.log"
     conda:
         "../envs/read_classification.yaml"
+    resources:
+        mem_mb=lambda wildcards: max(sample_memory[wildcards.sample]*1.25, 100)
     threads: 1 
     shell:
         """
@@ -103,7 +105,4 @@ rule restore_chromosome_names_classified_bams:
 
         rm -rf results/eagle_rc/{wildcards.sample}/tmp_renamed/
 
-        if [ -d "results/renamed_assemblies" ]; then
-            rm -rf "results/renamed_assemblies" 2>&1 | tee -a {log}
-        fi
         """

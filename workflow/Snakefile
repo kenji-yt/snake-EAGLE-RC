@@ -58,36 +58,38 @@ PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors")
 # If a config file is desired/necessary we can add if statement to see if it exists in the input directory. 
 # Then verify if input dir format matches config specifications. 
 
-# get file count and list within sample directories
+# get list of fasta files within sample directories
+
+accepted_extensions = [
+    "*.fastq", "*.fasta", "*.fna", "*.fq", "*.fa",
+    "*.fastq.gz", "*.fasta.gz", "*.fna.gz", "*.fq.gz", "*.fa.gz"
+]
 
 sample_files = {}
+
 for sample in SAMPLES:
 
     sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
     
-    files  = os.listdir(sample_dir)
+    fasta_files = []
+    for pattern in accepted_extensions:
+        paths = glob.glob(os.path.join(sample_dir, pattern), recursive=True)
+        fasta_files.extend(os.path.basename(p) for p in paths)
 
-    sample_files[sample] = files 
+    sample_files[sample] = fasta_files 
 
-# get all read files
-accepted_read_patterns = [
-        f"{INPUT_DIR}/polyploids/**/*.fastq",
-        f"{INPUT_DIR}/polyploids/**/*.fasta",
-        f"{INPUT_DIR}/polyploids/**/*.fna",
-        f"{INPUT_DIR}/polyploids/**/*.fq",
-        f"{INPUT_DIR}/polyploids/**/*.fa",
-        f"{INPUT_DIR}/polyploids/**/*.fastq.gz",
-        f"{INPUT_DIR}/polyploids/**/*.fasta.gz",
-        f"{INPUT_DIR}/polyploids/**/*.fna.gz",
-        f"{INPUT_DIR}/polyploids/**/*.fq.gz",
-        f"{INPUT_DIR}/polyploids/**/*.fa.gz",
-    ]
-all_read_paths = [] 
-for pattern in accepted_read_patterns:
-        for file in glob.glob(pattern, recursive=True):
-            basename = os.path.basename(file)  
-            parent_dir = os.path.basename(os.path.dirname(file))  
-            all_read_paths.append(os.path.join(parent_dir, basename))
+
+# get the file size of 
+sample_memory = {}
+
+for sample, filenames in sample_files.items():
+
+    one_file_bytes = os.path.getsize(os.path.join(f"{INPUT_DIR}/polyploids", sample, filenames[0]))
+
+    mem_mb = one_file_bytes / (1024 * 1024)  # Convert bytes to MB
+
+    sample_memory[sample] = mem_mb
+
 
 
 ### Make wildcard constraints ###
