@@ -208,7 +208,7 @@ def check_gtf():
 # get eagle-rc input
 def get_bams(sample):
 
-    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned_sorted.bam" for progenitor in PROGENITORS}
+    return {progenitor:f"results/{ALIGNER}/{sample}/{sample}_{progenitor}_aligned.bam" for progenitor in PROGENITORS}
 
 
 # get renamed assemblies dictionary
@@ -346,6 +346,27 @@ def make_rename_command(sample):
 
     return command
 
+
+# Make a command to sort the bam files 
+def make_sort_ref_command(sample, log, threads):
+    
+    
+    sample_pattern = os.path.join("results/eagle_rc", sample, "*.ref.bam")
+    paths = glob.glob(sample_pattern)
+
+    commands = []
+    for path in paths:
+
+        sorted_ref = path.replace("ref", "sorted.ref")
+        
+        commands.append(
+            f"samtools sort -T .temp -@ {threads} {path} > {sorted_ref} 2> >(tee {log} >&2)"
+        )
+
+    command = " && ".join(commands)
+    return command
+
+
 def make_qualimap_command(sample, log, threads):
     
     commands = []
@@ -353,7 +374,11 @@ def make_qualimap_command(sample, log, threads):
     for progenitor in PROGENITORS:
 
         commands.append(
-            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
+            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
+        )
+
+        commands.append(
+            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee {log}"
         )
 
     command = " && ".join(commands)
@@ -368,7 +393,11 @@ def make_RNA_qualimap_command(sample, log):
         gtf_file = glob.glob(f"{INPUT_DIR}/progenitors/{progenitor}/*.gtf")[0]
 
         commands.append(
-            f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML > {log} 2>&1"
+            f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML > {log} 2>&1"
+        )
+
+        commands.append(
+            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee {log}"
         )
 
     command = " && ".join(commands)
@@ -381,7 +410,7 @@ def multiqc_input(type):
 
     # To define the wildcards
     input.extend(
-        expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned_sorted.bam", sample=SAMPLES, progenitor=PROGENITORS) 
+        expand(f"results/{ALIGNER}" + "/{sample}/{sample}_{progenitor}_aligned.bam", sample=SAMPLES, progenitor=PROGENITORS) 
     )
 
     any_gtf = check_gtf()

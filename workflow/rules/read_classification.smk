@@ -15,21 +15,6 @@ rule install_eagle:
         make -C {params.eagle_install_dir}
         """
 
-
-rule sort_bams:
-    input:
-        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned.bam",
-    output:
-        bam=f"results/{ALIGNER}/" + "{sample}/{sample}_{progenitor}_aligned_sorted.bam",
-    log:
-        "results/logs/eagle_rc/input_sorting/{sample}/{progenitor}.log",
-    conda:
-        "../envs/samtools.yaml"
-    threads: workflow.cores
-    shell:
-        "samtools sort -T .temp -@ {threads} {input.bam} > {output.bam}"
-
-
 rule make_read_classification_script:
     input:
         unpack(lambda wildcards: get_bams(wildcards.sample)),
@@ -104,5 +89,4 @@ rule restore_chromosome_names_classified_bams:
         done
 
         rm -rf results/eagle_rc/{wildcards.sample}/tmp_renamed/
-
         """

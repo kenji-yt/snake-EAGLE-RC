@@ -19,7 +19,7 @@ rule bwa_mem2:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
         idx=multiext("results/bwa/{progenitor}/{progenitor}",".amb", ".ann", ".bwt.2bit.64", ".pac", ".0123"),
     output:
-        temp("results/bwa/{sample}/{sample}_{progenitor}_aligned.bam"),
+        "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
     threads: workflow.cores
@@ -48,7 +48,7 @@ rule bismark_alignment:
         genome="results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
         bismark_indexes_dir="results/renamed_assemblies/{progenitor}/Bisulfite_Genome",
     output:
-        bam=temp("results/bismark/{sample}/{sample}_{progenitor}_aligned.bam"),  
+        bam="results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",  
         report="results/bismark/{sample}/{sample}_{progenitor}_report.txt",
         
     log:
@@ -86,7 +86,7 @@ rule star_alignment:
         idx = "results/star/{progenitor}/index",
         
     output:
-        aln=temp("results/star/{sample}/{sample}_{progenitor}_aligned.bam"),
+        aln="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/star/aligment/{sample}_{progenitor}.log",
     message:

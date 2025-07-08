@@ -2,13 +2,28 @@
 ## Qualimap rules ##
 ####################
 
-rule qualimap:
+rule sort_ref_bams:
     input:
         classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
+    log:
+        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
+    conda:
+        "../envs/samtools.yaml"
+    threads: workflow.cores
+    params:
+        threads=workflow.cores,
+    run:
+        sort_ref_command=make_sort_ref_command(wildcards.sample, log, params.threads)
+        shell(sort_ref_command)
+
+        
+rule qualimap:
+    input:
+        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
     output:
         directory("results/qualimap/{sample}"),
     log:
-        "results/logs/qualimap/{sample}.log",
+        "results/logs/qualimap/{sample}/qualimap.log",
     conda:
         "../envs/qualimap.yaml"
     threads: workflow.cores 
@@ -20,7 +35,7 @@ rule qualimap:
 
 rule RNA_qualimap:
     input:
-        classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
+        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
     output:
         directory("results/qualimap_RNA/{sample}"),
     log:
