@@ -326,6 +326,15 @@ def make_eagle_command(input, assemblies, params, output):
         raise ValueError(error_msg)
 
 
+# get bam file size
+def get_bam_size(sample):
+
+    pattern=f"results/{ALIGNER}/{sample}/{sample}_*_aligned.bam" 
+    files = glob.glob(pattern)
+    total_bytes = sum(os.path.getsize(f) for f in files if os.path.isfile(f))
+    return total_bytes / (1024 * 1024)  # convert to MB
+
+
 def make_rename_command(sample):
 
     command=""
