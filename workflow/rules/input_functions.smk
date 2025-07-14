@@ -383,7 +383,7 @@ def make_qualimap_command(sample, log, threads, memory):
     for progenitor in PROGENITORS:
 
         commands.append(
-            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} --java-mem-size={resources.mem_mb}M > {log} 2>&1"
+            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} --java-mem-size={memory}M > {log} 2>&1"
         )
 
         commands.append(
