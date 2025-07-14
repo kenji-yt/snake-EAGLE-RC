@@ -27,10 +27,10 @@ rule qualimap:
     conda:
         "../envs/qualimap.yaml"
     threads: workflow.cores 
-    params:
-        threads=workflow.cores,
+    resources:
+        mem_mb=1200
     run:
-        qualimap_command=make_qualimap_command(wildcards.sample, log, params.threads)
+        qualimap_command=make_qualimap_command(wildcards.sample, log, threads, resources.mem_mb)
         shell(qualimap_command)
 
 rule RNA_qualimap:

@@ -376,14 +376,14 @@ def make_sort_ref_command(sample, log, threads):
     return command
 
 
-def make_qualimap_command(sample, log, threads):
+def make_qualimap_command(sample, log, threads, memory):
     
     commands = []
     commands.append(f"mkdir -p results/qualimap/{sample} 2> {log}")
     for progenitor in PROGENITORS:
 
         commands.append(
-            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} > {log} 2>&1"
+            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} --java-mem-size={resources.mem_mb}M > {log} 2>&1"
         )
 
         commands.append(
