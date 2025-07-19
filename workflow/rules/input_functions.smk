@@ -383,11 +383,15 @@ def make_qualimap_command(sample, log, threads, memory):
     for progenitor in PROGENITORS:
 
         commands.append(
-            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} --java-mem-size={memory}M > {log} 2>&1"
+            f"echo 'Qualimap run for {sample}_classified_{progenitor}.sorted.ref.bam' >> {log} 2>&1"
+        )
+        
+        commands.append(
+            f"qualimap bamqc -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -outdir results/qualimap/{sample}/{progenitor} -outformat PDF:HTML -nt {threads} --java-mem-size={memory}M >> {log} 2>&1"
         )
 
         commands.append(
-            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee {log}"
+            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee -a {log}"
         )
 
     command = " && ".join(commands)
@@ -406,7 +410,7 @@ def make_RNA_qualimap_command(sample, log):
         )
 
         commands.append(
-            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee {log}"
+            f"rm results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam 2>&1 | tee -a {log}"
         )
 
     command = " && ".join(commands)

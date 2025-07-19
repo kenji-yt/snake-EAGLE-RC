@@ -6,7 +6,7 @@ rule sort_ref_bams:
     input:
         classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
     log:
-        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
+        sort_ref_log="results/logs/qualimap/{sample}/sorting.log",
     conda:
         "../envs/samtools.yaml"
     threads: workflow.cores
