@@ -84,7 +84,7 @@ sample_memory = {}
 
 for sample, filenames in sample_files.items():
 
-    one_file_bytes =    (os.path.join(f"{INPUT_DIR}/polyploids", sample, filenames[0]))
+    one_file_bytes = os.path.getsize(os.path.join(f"{INPUT_DIR}/polyploids", sample, filenames[0]))
 
     mem_mb = one_file_bytes / (1024 * 1024)  # Convert bytes to MB
 

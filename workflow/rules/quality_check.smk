@@ -19,7 +19,7 @@ rule sort_ref_bams:
         
 rule qualimap:
     input:
-        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
+        sort_ref_log="results/logs/qualimap/{sample}/sorting.log",
     output:
         directory("results/qualimap/{sample}"),
     log:
@@ -35,7 +35,7 @@ rule qualimap:
 
 rule RNA_qualimap:
     input:
-        sort_ref_log="results/logs/qualimap_sorting/{sample}/sorting.log",
+        sort_ref_log="results/logs/qualimap/{sample}/sorting.log",
     output:
         directory("results/qualimap_RNA/{sample}"),
     log:
