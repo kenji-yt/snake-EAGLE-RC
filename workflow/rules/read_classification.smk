@@ -54,7 +54,7 @@ rule read_classification:
             mv {params.tmp_log} {output}
         fi
         exit $status
-        """
+d        """
 
 
 rule change_classified_bam_filenames: 

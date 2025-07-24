@@ -78,20 +78,6 @@ for sample in SAMPLES:
 
     sample_files[sample] = fasta_files 
 
-
-# get the file size of 
-sample_memory = {}
-
-for sample, filenames in sample_files.items():
-
-    one_file_bytes = os.path.getsize(os.path.join(f"{INPUT_DIR}/polyploids", sample, filenames[0]))
-
-    mem_mb = one_file_bytes / (1024 * 1024)  # Convert bytes to MB
-
-    sample_memory[sample] = mem_mb
-
-
-
 ### Make wildcard constraints ###
 import re
 sample_regex = "|".join(re.escape(sample) for sample in SAMPLES)
