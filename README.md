@@ -38,7 +38,6 @@ Inside the input directory you should have two directories names 'progenitors' a
 - **'progenitors':** This directory should contain one subdirectory for each reference genome (each progenitor for allopolyploids). The name of each subdirectory should be the species or genome name and it will appear as such in the output files. Within each subdirectory you should have the corresponding reference genome in fasta/fastq format. Name these files as you wish as long as they have one of the following extensions: "fa","fasta","fq","fna","fastq". In EAGLE-RC, you must ensure that chromosome names are different between subgenomes. **This is not the case in snake-EAGLE-RC.** In other words, you do not need to rename the sequences in your assemblies. **For RNA** data you can add a ".gtf" file in each progenitor directory. This is not essential for read classification but enables quality check of the output bam using [qualimap](https://github.com/EagleGenomics-cookbooks/QualiMap). In the absence of ".gtf" files, qualimap will still make a report but the results will not be very sensible. **For DNA and WGBS** you must avoid having a ".gtf" file in the progenitor directories as this will run qualimap for RNA-seq instead of qualimap for whole genome sequencing data.    
 - **'polyploids':** This directory should contain one subdirectory per sample. The name of each subdirectory should be a unique sample identifier (don't give the same name to different sample directories). Each of these sample directories should only contain sequencing reads in fasta/fastq format (gzipped or not). There should be one file if the data is single-end and two files if paired-end. If paired-end, make sure the filenames are identical expect for a '1' and '2' indicating which side of the pair each file contains. You can input a mix of samples having single-end and paired-end data. 
 
-
 Your input directory should have the following structure:
 ```
 input_directory/
@@ -72,6 +71,8 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 
 The outputs will now be generated in a results directory within the snake-EAGLE-RC directory. 
 
+Sometimes the workflow might be interrupted during execution. If this occurs, you do not need to repeat every step. Simply fix the issue and run the snakemake command again. For example, the workflow might fail due to issuficient RAM memory for qualimap. In that case you can add the flag "--set-resources qualimap:mem_mb=16000" (here setting 16000MB of memory to the each qualimap run) to your command, then run it (change to "RNA_qualimap" if using RNA data). The analysis should resume where it left off. 
+
 ## Quality Check & Filtering
 
 Quality check, filtering and trimming can be performed for the input data using [fastp](https://github.com/OpenGene/fastp). You can run the workflow only until the this step using "--until fastp_se" or "fast_pe" for singe-end and paired-end respectively (Assuming only one data type in your input. If you have a mix of paired-end and single-end this wont work). After filtering and verifying the quality, running the snakemake command will resume the workflow from the fastp step onwards.  You can set the config argument "FILTERING=false" to avoid fastp filtering, trimming and reporting. By default, "FILTERING" is set to "True" such that the workflow performs trimming and filtering with fastp in default mode. If you wish to set your own fastp filtering and trimming parameters simply set the "FILTERING" variable to the flags you wish to pass to fastp (eg. "FILTERING='-q 20 -u 30'"). 
@@ -86,7 +87,7 @@ Results will be written to a directory called "results" inside the snake-EAGLE-R
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
 - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
 - qualimap (or qualimap_RNA): Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
-- star/bismark/bwa: Contains bam files of the reads aligned to each subgenome. 
+- star/bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{progenitor_name}_NME_". 
 - logs: Contains logs for each analysis.
 - MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports. 
 - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 

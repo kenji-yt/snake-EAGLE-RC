@@ -12,7 +12,7 @@ def get_assembly(progenitor):
     
     path = os.path.join(f"{INPUT_DIR}/progenitors", progenitor)
 
-    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "fastq"]
+    fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "*.fastq"]
 
     fasta_files = []
 
@@ -397,7 +397,7 @@ def make_qualimap_command(sample, log, threads, memory):
     command = " && ".join(commands)
     return command
 
-def make_RNA_qualimap_command(sample, log):
+def make_RNA_qualimap_command(sample, log, memory):
 
     commands = []
     commands.append(f"mkdir -p results/qualimap_RNA/{sample} 2> {log}")
@@ -406,7 +406,7 @@ def make_RNA_qualimap_command(sample, log):
         gtf_file = glob.glob(f"{INPUT_DIR}/progenitors/{progenitor}/*.gtf")[0]
 
         commands.append(
-            f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML > {log} 2>&1"
+            f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML --java-mem-size={memory}M >> {log} 2>&1"
         )
 
         commands.append(

@@ -43,8 +43,10 @@ rule RNA_qualimap:
     conda:
         "../envs/qualimap.yaml"
     threads: 1
+    resources:
+        mem_mb=1200
     run:
-        RNA_qualimap_command=make_RNA_qualimap_command(wildcards.sample, log)
+        RNA_qualimap_command=make_RNA_qualimap_command(wildcards.sample, log, resources.mem_mb)
         shell(RNA_qualimap_command)
         
 
