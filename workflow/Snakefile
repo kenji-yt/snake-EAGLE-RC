@@ -34,7 +34,7 @@ elif FILTER is False:
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
-
+QUALIMAP_MEMORY = config.get("QUALIMAP_MEMORY", 1200)
 
 ## Parse Input directory
 

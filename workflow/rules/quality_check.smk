@@ -28,7 +28,7 @@ rule qualimap:
         "../envs/qualimap.yaml"
     threads: workflow.cores 
     resources:
-        mem_mb=1200
+        mem_mb=QUALIMAP_MEMORY
     run:
         qualimap_command=make_qualimap_command(wildcards.sample, log, threads, resources.mem_mb)
         shell(qualimap_command)
