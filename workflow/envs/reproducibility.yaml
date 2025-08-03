@@ -4,4 +4,4 @@ channels:
 dependencies: 
   - gcc
   - binutils
-  - git=2.45.2 
+  - git
