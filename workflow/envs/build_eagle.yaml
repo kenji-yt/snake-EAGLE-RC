@@ -6,5 +6,5 @@ dependencies:
   - binutils
   - xz=5.2.4
   - zlib=1.2.13
-  - git=2.45.2 
+  - git 
   - make=4.2.1 
