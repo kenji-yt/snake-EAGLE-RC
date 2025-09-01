@@ -52,9 +52,10 @@ def get_read_files_to_trim(sample):
                     error_msg = f"Error: The only differing character in {sample} read filenames should be '1' or '2'."
                     raise ValueError(error_msg)
         
-        return{
-            'sample':[fq1_path, fq2_path]
-        }
+        if fq1_path[diff_position] == '1':
+                    return {'sample':[fq1_path, fq2_path]}
+                else:
+                    return {'sample':[fq2_path, fq1_path]}
             
     elif len(sample_files[sample]) == 1:
         return {
