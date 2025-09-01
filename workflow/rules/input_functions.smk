@@ -53,9 +53,9 @@ def get_read_files_to_trim(sample):
                     raise ValueError(error_msg)
         
         if fq1_path[diff_position] == '1':
-                return {'sample':[fq1_path, fq2_path]}
-            else:
-                 dreturn {'sample':[fq2_path, fq1_path]}
+            return {'sample':[fq1_path, fq2_path]}
+        else:
+            return {'sample':[fq2_path, fq1_path]}
             
     elif len(sample_files[sample]) == 1:
         return {
