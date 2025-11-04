@@ -1,6 +1,6 @@
 # `snake-EAGLE-RC`
 
-[![Snakemake](https://img.shields.io/badge/snakemake-≥6.3.0-brightgreen.svg)](https://snakemake.github.io)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥9-brightgreen.svg)](https://snakemake.github.io)
 
 
 **/!\ NOTE: This tools is only available for Linux /!\\**
@@ -22,6 +22,9 @@ The workflow performs read classification with EAGLE-RC in "--ngi" (no genotype)
 - Classified bam files are modified to restore the original chromosome names. Renamed assemblies are deleted.
 - Qualimap produces a report for the bam files containing reads assigned to the assemblies (".ref"). 
 
+## Bugs, Suggestions, Help 
+
+If you wish to report an error/bug, ask for help, or suggest changes and new features, please open an issue [here](https://github.com/kenji-yt/snake-EAGLE-RC/issues). 
 
 ## Installation 
 
@@ -59,7 +62,10 @@ input_directory/
         └── reads_pe_2.fastq
 ```
 
-As mentionned above, you can add ".gtf" files in the "progenitors/speciesN/" directories if you want appropriate qualimap reports. 
+As mentionned above, you can add ".gtf" files in your input directory at `progenitors/species/` directories if you want appropriate qualimap reports for RNA data.
+
+You can find an **input directory template** in `template_input_dir/DNA`. This is not a test dataset as it only contains empty files. It just serves as a guide for your own input directory.  
+
 
 ## Usage
 
