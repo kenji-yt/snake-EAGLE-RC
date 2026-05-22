@@ -3,7 +3,7 @@
 [![Snakemake](https://img.shields.io/badge/snakemake-≥9-brightgreen.svg)](https://snakemake.github.io)
 
 
-**/!\ NOTE: This tools is only available for Linux /!\\**
+(for Linux OS only)
 
 A Snakemake workflow around [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=readme-ov-file#eagle-rc), a tool designed to classify sequencing reads to their most likely genome of origin given several possible reference genomes. This is very useful for assigning reads from an allopolyploid to a specific subgenome. 
 

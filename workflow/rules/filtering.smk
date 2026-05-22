@@ -27,5 +27,7 @@ rule fastp_pe:
     log:
         "results/logs/fastp/{sample}.log"
     threads: min(workflow.cores, 8)
+    params:
+        extra=FILTER_PARAMS
     wrapper:
         "v6.2.0/bio/fastp"
