@@ -115,4 +115,4 @@ rule make_reproducibility_report:
     conda:
         "envs/reproducibility.yaml"
     shell:
-        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering} {params.soft_clip} {params.envs_dir}"
+        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering:q} {params.soft_clip} {params.envs_dir}"
