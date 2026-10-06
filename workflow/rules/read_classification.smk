@@ -44,7 +44,7 @@ rule read_classification:
     conda:
         "../envs/read_classification.yaml"
     resources:
-        mem_mb=lambda wildcards: int(max(get_bam_size(wildcards.sample)*3.5, 100)) # Empirical determined: need for 3.5x memory usage
+        mem_mb=lambda wildcards: int(max(get_bam_size(wildcards.sample)*3.5, 100)) # Empirically determined: need for 3.5x memory usage
     threads: 1 
     shell:
         """
