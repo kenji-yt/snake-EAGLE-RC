@@ -22,7 +22,7 @@ INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 SCRIPTS_DIR = config.get("SCRIPTS_DIR", f"{workflow.basedir}/scripts") # For integration into HEAL (reverse dependency)
 ENVS_DIR = config.get("ENVS_DIR", f"{workflow.basedir}/envs") # also for HEAL 
 FILTER = config.get("FILTER", True)
-if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) == 1)):
+if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) > 0)):
     raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
 if isinstance(FILTER, str):
     FILTER_PARAMS = FILTER

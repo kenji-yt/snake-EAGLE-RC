@@ -10,7 +10,7 @@ rule fastp_se:
         "results/logs/fastp/{sample}.log"
     threads: min(workflow.cores, 8)
     params:
-        extra=FILTER_PARAMS
+        extra=get_filter_params()
     wrapper:
         "v6.2.0/bio/fastp"
 
@@ -28,6 +28,6 @@ rule fastp_pe:
         "results/logs/fastp/{sample}.log"
     threads: min(workflow.cores, 8)
     params:
-        extra=FILTER_PARAMS
+        extra=get_filter_params()
     wrapper:
         "v6.2.0/bio/fastp"
