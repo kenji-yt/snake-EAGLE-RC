@@ -3,7 +3,7 @@ rule fastp_se:
         unpack(lambda wildcards: get_read_files_to_trim(wildcards.sample)),
     output:
         trimmed="results/fastp/{sample}/{sample}_filtered.fastq.gz",
-        failed="results/fastp/{sample}{sample}.failed.fastq.gz",
+        failed="results/fastp/{sample}/{sample}.failed.fastq.gz",
         html="results/fastp/{sample}/{sample}.html",
         json="results/fastp/{sample}/{sample}_se.fastp.json"
     log:
@@ -12,7 +12,7 @@ rule fastp_se:
     params:
         extra=get_filter_params()
     wrapper:
-        "v6.2.0/bio/fastp"
+        WRAPPER_RELEASE + "/bio/fastp"
 
 
 rule fastp_pe:
@@ -30,4 +30,4 @@ rule fastp_pe:
     params:
         extra=get_filter_params()
     wrapper:
-        "v6.2.0/bio/fastp"
+        WRAPPER_RELEASE + "/bio/fastp"

@@ -1,6 +1,8 @@
+# Used for: quality reports of the classified reads
 name: qualimap_env
 channels:
-  - defaults
+  - conda-forge
   - bioconda
+  - nodefaults
 dependencies:
-  - qualimap=2.2.2
+  - qualimap=2.3

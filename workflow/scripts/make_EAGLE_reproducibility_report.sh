@@ -7,6 +7,11 @@ n_cores=$2
 filtering_params=$3
 softclipping=$4
 envs_dir=$5
+pipeline_version=$6
+wrapper_release=$7
+wrappers=$8
+eagle_version=$9
+htslib_version=${10}
 report=results/snake_EAGLE_RC_reproducibility_report.txt
 CURRENT_DATETIME=$(date +"%Y-%m-%d %H:%M:%S")
 
@@ -118,36 +123,25 @@ echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
 eagle_version=$(git -C results/eagle_rc/eagle_installation describe --tags --abbrev=0 | sed 's/v//g')
 echo "eagle-rc=${eagle_version}" >> "${report}"
 
-echo "General analysis tools used in their snakemake wrappers:" >> "${report}"
-echo "snakemake wrappers release=3.3.3" >> "${report}"
-echo "  - MulitQC=1.19" >> "${report}"
-echo "snakemake wrappers release=4.7.2" >> "${report}"
-if [ $(basename "${input_dir}")=="RNA" ]; then
-    echo "  - star=2.7.11b" >> "${report}"
-elif [ $(basename "${input_dir}")=="DNA" ]; then
-    echo "  - bwa-mem2=2.2.1" >> "${report}"
-elif [ $(basename "${input_dir}")=="WGBS" ]; then
-    echo "  - bowtie2=2.5.4" >> "${report}"
-    echo "  - bismark=0.24.2" >> "${report}"
-fi
-echo "snakemake wrappers release=6.2.0" >> "${report}"
-echo "  - fastp=0.24.1" >> "${report}" 
-echo "Tool used for sorting bams:" >> "${report}"
-grep 'samtools' ${envs_dir}/samtools.yaml >> "${report}"
-echo "Tool used for quality assessment of classified bam files:" >> "${report}"
-grep -- "- qualimap" ${envs_dir}/qualimap.yaml >> "${report}"
-echo "Tools used to install eagle:" >> "${report}"
-grep 'git' ${envs_dir}/build_eagle.yaml >> "${report}"
-grep 'make' ${envs_dir}/build_eagle.yaml >> "${report}"
-grep 'zlib' ${envs_dir}/build_eagle.yaml >> "${report}"
-grep 'xz' ${envs_dir}/build_eagle.yaml >> "${report}"
-gcc_version=$(gcc --version | awk '{print $4}' | head -1 | sed "s/)//g")
-echo "  - gcc=${gcc_version}" >> "${report}"   
-conda list binutils | grep "binutils " | awk '{print "  - "$1"="$2}' >> "${report}" 
-echo "Tools used for hexaploid read classification:" >> "${report}"
-grep 'python' ${envs_dir}/read_classification.yaml >> "${report}"
-grep 'scipy' ${envs_dir}/read_classification.yaml >> "${report}"
-grep 'numpy' ${envs_dir}/read_classification.yaml >> "${report}"   
+# Tool versions as pinned in the snakemake-wrappers release used
+echo "Tools used through snakemake wrappers (release ${wrapper_release}):" >> "${report}"
+for wrapper in ${wrappers}; do
+    echo "  ${wrapper}:" >> "${report}"
+    env_url="https://raw.githubusercontent.com/snakemake/snakemake-wrappers/${wrapper_release}/bio/${wrapper}/environment.yaml"
+    if env_yaml=$(curl -fsSL "${env_url}"); then
+        echo "${env_yaml}" | sed -n '/^dependencies:/,$p' | grep -E '^[[:space:]]*- ' | sed -E 's/^[[:space:]]*- */    - /; s/ *= */=/' >> "${report}"
+    else
+        echo "    (versions not available: could not download ${env_url})" >> "${report}"
+    fi
+done
+
+# Tool versions as pinned in the workflow's own conda environments
+echo "Tools in the workflow's conda environments:" >> "${report}"
+for env_file in "${envs_dir}"/*.yaml; do
+        purpose=$(sed -n 's/^# Used for: *//p' "${env_file}")
+    echo "  ${purpose:-$(basename "${env_file}" .yaml)}:" >> "${report}"
+    sed -n '/^dependencies:/,$p' "${env_file}" | grep -E '^[[:space:]]*- ' | sed -E 's/^[[:space:]]*- */    - /; s/[[:space:]]*#.*$//' >> "${report}"
+done  
 
 echo "" >> "${report}"
 echo "" >> "${report}"

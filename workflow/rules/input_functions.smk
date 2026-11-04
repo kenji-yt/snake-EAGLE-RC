@@ -59,7 +59,7 @@ def get_read_files_to_trim(sample):
             
     elif len(sample_files[sample]) == 1:
         return {
-            'sample':f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"
+            'sample':[f"{INPUT_DIR}/polyploids/{sample}/{sample_files[sample][0]}"]
         }
     else:
         error_msg = f"Error: Either more than two or zero read files for sample {sample}."
@@ -172,11 +172,9 @@ def get_read_files(sample):
 
 
         elif DATA_TYPE=="DNA":
-            sample_dir = os.path.join(f"{INPUT_DIR}/polyploids", sample)
-            files  = os.listdir(sample_dir)
-            file_path = [os.path.join(sample_dir, file) for file in files]
+            # same read files, in the same R1/R2 order, as used for filtering
             return {
-                'reads':file_path
+                'reads': get_read_files_to_trim(sample)['sample']
             }
 
 def check_gtf():
@@ -226,6 +224,7 @@ def get_renamed_assemblies_dict(progenitors):
 
 def make_eagle_command(input, assemblies, params, output):
 
+    sample = params['sample_name']
 
     output_directory = f"results/eagle_rc/{params['sample_name']}/tmp_renamed/"
 
@@ -350,7 +349,7 @@ def make_rename_command(sample):
 
         command = command.rstrip(' && ')
 
-    elif(PROGENITORS) == 3:
+    elif len(PROGENITORS) == 3:
 
         command="echo Hexaploid: no renaming required."
 
@@ -359,18 +358,12 @@ def make_rename_command(sample):
 
 # Make a command to sort the bam files 
 def make_sort_ref_command(sample, log, threads):
-    
-    
-    sample_pattern = os.path.join("results/eagle_rc", sample, "*.ref.bam")
-    paths = glob.glob(sample_pattern)
 
     commands = []
-    for path in paths:
-
-        sorted_ref = path.replace("ref", "sorted.ref")
-        
+    for progenitor in PROGENITORS:
+        prefix = f"results/eagle_rc/{sample}/{sample}_classified_{progenitor}"
         commands.append(
-            f"samtools sort -T .temp -@ {threads} {path} > {sorted_ref} 2> >(tee {log} >&2)"
+            f"samtools sort -T {prefix}.sort_tmp -@ {threads} {prefix}.ref.bam > {prefix}.sorted.ref.bam 2> >(tee -a {log} >&2)"
         )
 
     command = " && ".join(commands)

@@ -1,7 +1,7 @@
+# Used for: writing the reproducibility report
 name: reproducibility_report
 channels:
   - conda-forge
 dependencies: 
-  - gcc
-  - binutils
-  - git
+  - git=2.56.0
+  - curl=8.23.0

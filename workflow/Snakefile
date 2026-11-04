@@ -2,7 +2,7 @@
 
 from snakemake.utils import min_version
 
-min_version("5.20.1")
+min_version("9.0")
 
 ## Import required libraries
 import os
@@ -22,7 +22,7 @@ INPUT_DIR = os.path.normpath(config["INPUT_DIR"])
 SCRIPTS_DIR = config.get("SCRIPTS_DIR", f"{workflow.basedir}/scripts") # For integration into HEAL (reverse dependency)
 ENVS_DIR = config.get("ENVS_DIR", f"{workflow.basedir}/envs") # also for HEAL 
 FILTER = config.get("FILTER", True)
-if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) > 0)):
+if not (FILTER is True or FILTER is False or (isinstance(FILTER, str) and len(FILTER) >= 1)):
     raise ValueError("Error: FILTER must be either True, False or flags to pass to fastp.")
 if isinstance(FILTER, str):
     FILTER_PARAMS = FILTER
@@ -34,6 +34,10 @@ elif FILTER is False:
 SOFT_CLIP = config.get("SOFT_CLIP", False)
 if not isinstance(SOFT_CLIP, bool):
     raise ValueError("Error: SOFT_CLIP must be either True or False.")
+SNAKE_EAGLE_RC_VERSION = "1.1.0"
+WRAPPER_RELEASE = "v9.19.4"
+EAGLE_VERSION = "v1.1.3"
+HTSLIB_VERSION = "1.25"
 
 ## Parse Input directory
 
@@ -48,9 +52,16 @@ else:
     error_msg=f"ERROR: Unknown data type. Name the input directory after the data type: 'DNA', 'RNA' or 'WGBS'."
     raise ValueError(error_msg)
 
+WRAPPERS_USED = {"DNA": ["bwa-mem2/index", "bwa-mem2/mem"],
+                 "RNA": ["star/index", "star/align"],
+                 "WGBS": ["bismark/bismark_genome_preparation", "bismark/bismark"]}[DATA_TYPE] + (["fastp"] if FILTER else []) + ["multiqc"]
 
-SAMPLES = os.listdir(f"{INPUT_DIR}/polyploids") 
-PROGENITORS = os.listdir(f"{INPUT_DIR}/progenitors") 
+if DATA_TYPE == "WGBS" and workflow.cores < 2:
+    raise ValueError("ERROR: WGBS data needs at least 2 cores (Bismark genome preparation runs both conversions in parallel). Run with --cores 2 or more.")
+
+# Sample and subgenome directories, without hidden files (e.g. .DS_Store), in a fixed order
+SAMPLES = sorted(d for d in os.listdir(f"{INPUT_DIR}/polyploids") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/polyploids/{d}"))
+PROGENITORS = sorted(d for d in os.listdir(f"{INPUT_DIR}/progenitors") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/progenitors/{d}")) 
 
 
 
@@ -111,8 +122,14 @@ rule make_reproducibility_report:
         filtering=FILTER_PARAMS,
         soft_clip=SOFT_CLIP,
         envs_dir=f"{ENVS_DIR}",
+        version=SNAKE_EAGLE_RC_VERSION,
+        wrapper_release=WRAPPER_RELEASE,
+        wrappers=" ".join(WRAPPERS_USED),
+        eagle_version=EAGLE_VERSION,
+        htslib_version=HTSLIB_VERSION,
     threads:1
     conda:
         "envs/reproducibility.yaml"
     shell:
-        "bash {params.scripts}/make_EAGLE_reproducibility_report.sh {input.input_dir} {params.cores} {params.filtering:q} {params.soft_clip} {params.envs_dir}"
+        'bash {params.scripts}/make_EAGLE_reproducibility_report.sh "{input.input_dir}" "{params.cores}" "{params.filtering}" "{params.soft_clip}" "{params.envs_dir}" '
+        '"{params.version}" "{params.wrapper_release}" "{params.wrappers}" "{params.eagle_version}" "{params.htslib_version}"'

@@ -6,13 +6,17 @@ rule install_eagle:
     params:
         eagle_install_dir="results/eagle_rc/eagle_installation",
         htslib_install_dir="results/eagle_rc/eagle_installation/htslib",
+        eagle_version=EAGLE_VERSION,
+        htslib_version=HTSLIB_VERSION,
     conda:
         "../envs/build_eagle.yaml"
     shell:
         """
-        git clone https://github.com/tony-kuo/eagle.git {params.eagle_install_dir}
-        git clone --recursive https://github.com/samtools/htslib.git {params.htslib_install_dir}
+        (
+        git clone --depth 1 --branch {params.eagle_version} https://github.com/tony-kuo/eagle.git {params.eagle_install_dir}
+        git clone --recursive --depth 1 --branch {params.htslib_version} https://github.com/samtools/htslib.git {params.htslib_install_dir}
         make -C {params.eagle_install_dir}
+        ) > {log} 2>&1
         """
 
 rule make_read_classification_script:
@@ -54,7 +58,7 @@ rule read_classification:
             mv {params.tmp_log} {output}
         fi
         exit $status
-d        """
+        """
 
 
 rule change_classified_bam_filenames: 

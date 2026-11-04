@@ -24,7 +24,7 @@ rule bwa_mem2:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
     threads: workflow.cores
     wrapper:
-        "v4.7.2/bio/bwa-mem2/mem"
+        WRAPPER_RELEASE + "/bio/bwa-mem2/mem"
 
 
 rule bwa_mem2_index:
@@ -35,7 +35,7 @@ rule bwa_mem2_index:
     log:
         "results/logs/bwa/index/{progenitor}.log",
     wrapper:
-        "v4.7.2/bio/bwa-mem2/index"
+        WRAPPER_RELEASE + "/bio/bwa-mem2/index"
 
 
 ###############################
@@ -45,8 +45,7 @@ rule bwa_mem2_index:
 rule bismark_alignment:
     input:
         unpack(lambda wildcards: get_read_files(wildcards.sample)),
-        genome="results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
-        bismark_indexes_dir="results/renamed_assemblies/{progenitor}/Bisulfite_Genome",
+        bismark_indexes_dir="results/renamed_assemblies/{progenitor}/bismark",
     output:
         bam="results/bismark/{sample}/{sample}_{progenitor}_aligned.bam",  
         report="results/bismark/{sample}/{sample}_{progenitor}_report.txt",
@@ -55,25 +54,22 @@ rule bismark_alignment:
         "results/logs/bismark/alignment/{sample}_{progenitor}.log"
     threads: 5 # Should be the maximal usage for the alignment. See: https://github.com/FelixKrueger/Bismark/issues/706
     params:
-        extra=lambda wildcards:(
-            f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor}_dir --local" if SOFT_CLIP 
-            else f"--temp_dir results/bismark/{wildcards.sample}/tmp_{wildcards.progenitor}_dir"
-        ),
-        basename='{sample}_{progenitor}' 
+        extra="--local" if SOFT_CLIP else "",
     wrapper:
-        "v4.7.2/bio/bismark/bismark"
+        WRAPPER_RELEASE + "/bio/bismark/bismark"
 
 
 
 rule bismark_genome_preparation_fa:
     input:
-        "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
+        genome="results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa",
     output:
-        directory("results/renamed_assemblies/{progenitor}/Bisulfite_Genome")
+        bismark_genome_dir=directory("results/renamed_assemblies/{progenitor}/bismark"),
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
+    threads: workflow.cores # the wrapper needs at least 2
     wrapper:
-        "v4.7.2/bio/bismark/bismark_genome_preparation"
+        WRAPPER_RELEASE + "/bio/bismark/bismark_genome_preparation"
 
 
 ###########################
@@ -95,7 +91,7 @@ rule star_alignment:
         extra=f"--outSAMtype BAM SortedByCoordinate",
     threads: workflow.cores
     wrapper:
-        "v4.7.2/bio/star/align"
+        WRAPPER_RELEASE + "/bio/star/align"
 
 
 
@@ -110,5 +106,5 @@ rule star_index_genomes:
     log:
         "results/logs/star/index/{progenitor}.log",
     wrapper:
-        "v4.7.2/bio/star/index"
+        WRAPPER_RELEASE + "/bio/star/index"
         

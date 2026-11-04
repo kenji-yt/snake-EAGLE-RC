@@ -73,7 +73,7 @@ You are now ready to classify reads using EAGLE-RC. From within the "snake-EAGLE
 ```
 snakemake --use-conda --cores N --config INPUT_DIR='your/input/directory'
 ```
-Make sure to have snakemake make installed, to replace 'your/input/directory' with the path to your input directory and 'N' with the number of cores you wish to allocate to the job. If you installed snakemake in a conda environment make sure to activate it (eg. "conda activate snakemake_env").  
+Make sure to have snakemake make installed, to replace 'your/input/directory' with the path to your input directory and 'N' with the number of cores you wish to allocate to the job. WGBS data needs at least 2 cores ('--cores 2'), because Bismark prepares the bisulfite-converted genomes in parallel. If you installed snakemake in a conda environment make sure to activate it (eg. "conda activate snakemake_env").  
 
 The outputs will now be generated in a results directory within the snake-EAGLE-RC directory. 
 
