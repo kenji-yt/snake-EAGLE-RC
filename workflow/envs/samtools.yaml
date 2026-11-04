@@ -1,3 +1,4 @@
+# Used for: restoring chromosome names and sorting classified reads
 channels:
   - conda-forge
   - bioconda

@@ -2,6 +2,7 @@
 name: reproducibility_report
 channels:
   - conda-forge
+  - nodefaults
 dependencies: 
   - git=2.56.0
   - curl=8.23.0

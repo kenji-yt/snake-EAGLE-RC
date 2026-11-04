@@ -118,10 +118,8 @@ echo "" >> "${report}"
 echo "" >> "${report}"
 
 
-version_snake_eagle_rc=$(git describe --tags --abbrev=0 | sed 's/v//g')
-echo "snake-EAGLE-RC=${version_snake_eagle_rc}" >> "${report}"
-eagle_version=$(git -C results/eagle_rc/eagle_installation describe --tags --abbrev=0 | sed 's/v//g')
-echo "eagle-rc=${eagle_version}" >> "${report}"
+echo "snake-EAGLE-RC=${pipeline_version}" >> "${report}"
+echo "eagle-rc=${eagle_version} (built with htslib=${htslib_version})" >> "${report}"
 
 # Tool versions as pinned in the snakemake-wrappers release used
 echo "Tools used through snakemake wrappers (release ${wrapper_release}):" >> "${report}"
