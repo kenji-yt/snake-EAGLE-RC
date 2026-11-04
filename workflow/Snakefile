@@ -59,11 +59,20 @@ WRAPPERS_USED = {"DNA": ["bwa-mem2/index", "bwa-mem2/mem"],
 if DATA_TYPE == "WGBS" and workflow.cores < 2:
     raise ValueError("ERROR: WGBS data needs at least 2 cores (Bismark genome preparation runs both conversions in parallel). Run with --cores 2 or more.")
 
-# Sample and subgenome directories, without hidden files (e.g. .DS_Store), in a fixed order
+# Sample directories, without hidden files (e.g. .DS_Store), in a fixed order
 SAMPLES = sorted(d for d in os.listdir(f"{INPUT_DIR}/polyploids") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/polyploids/{d}"))
-PROGENITORS = sorted(d for d in os.listdir(f"{INPUT_DIR}/progenitors") if not d.startswith(".") and os.path.isdir(f"{INPUT_DIR}/progenitors/{d}")) 
 
-
+# Subgenome directory: "subgenomes" ("progenitors", its name before version 1.1.0, is still accepted). The variable is still called PROGENITORS.
+if os.path.isdir(f"{INPUT_DIR}/subgenomes") and os.path.isdir(f"{INPUT_DIR}/progenitors"):
+    raise ValueError(f"ERROR: {INPUT_DIR} contains both 'subgenomes' and 'progenitors'. Keep only 'subgenomes'.")
+elif os.path.isdir(f"{INPUT_DIR}/subgenomes"):
+    SUBGENOMES_DIR = f"{INPUT_DIR}/subgenomes"
+elif os.path.isdir(f"{INPUT_DIR}/progenitors"):
+    SUBGENOMES_DIR = f"{INPUT_DIR}/progenitors"
+    print("Note: the input directory 'progenitors' is now called 'subgenomes'. 'progenitors' is still accepted for now.")
+else:
+    raise ValueError(f"ERROR: No 'subgenomes' directory found in {INPUT_DIR}.")
+PROGENITORS = sorted(d for d in os.listdir(SUBGENOMES_DIR) if not d.startswith(".") and os.path.isdir(f"{SUBGENOMES_DIR}/{d}"))
 
 # If a config file is desired/necessary we can add if statement to see if it exists in the input directory. 
 # Then verify if input dir format matches config specifications. 
@@ -113,7 +122,8 @@ rule all:
 rule make_reproducibility_report:
     input:
         input_dir=f"{INPUT_DIR}",
-        multi_qc="results/MultiQC/multiqc_report.html"
+        multi_qc="results/MultiQC/multiqc_report.html",
+        classified=expand("results/logs/eagle_rc/restoring_chr_names/{sample}.log", sample=SAMPLES),
     output:
         "results/snake_EAGLE_RC_reproducibility_report.txt"
     params:

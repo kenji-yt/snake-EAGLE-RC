@@ -10,7 +10,7 @@ def get_filter_params():
 # get assembly
 def get_assembly(progenitor):
     
-    path = os.path.join(f"{INPUT_DIR}/progenitors", progenitor)
+    path = os.path.join(SUBGENOMES_DIR, progenitor)
 
     fasta_extensions = ["*.fa", "*.fasta", "*.fna", "*.fq", "*.fastq"]
 
@@ -179,7 +179,7 @@ def get_read_files(sample):
 
 def check_gtf():
 
-    prog_dir = os.path.join(INPUT_DIR, "progenitors")
+    prog_dir = SUBGENOMES_DIR
     subdirs = [os.path.join(prog_dir, d) for d in os.listdir(prog_dir)
                if os.path.isdir(os.path.join(prog_dir, d))]
 
@@ -397,7 +397,7 @@ def make_RNA_qualimap_command(sample, log, memory):
     commands.append(f"mkdir -p results/qualimap_RNA/{sample} 2> {log}")
     for progenitor in PROGENITORS:
 
-        gtf_file = glob.glob(f"{INPUT_DIR}/progenitors/{progenitor}/*.gtf")[0]
+        gtf_file = glob.glob(f"{SUBGENOMES_DIR}/{progenitor}/*.gtf")[0]
 
         commands.append(
             f"qualimap rnaseq -bam results/eagle_rc/{sample}/{sample}_classified_{progenitor}.sorted.ref.bam -gtf {gtf_file} -outdir results/qualimap_RNA/{sample}/{progenitor} -outformat PDF:HTML --java-mem-size={memory}M >> {log} 2>&1"
@@ -422,14 +422,17 @@ def multiqc_input(type):
 
     any_gtf = check_gtf()
 
-    if any_gtf == False:
+    # Qualimap: bamqc for DNA and WGBS; rnaseq for RNA if every subgenome has a .gtf annotation, otherwise skipped
+    if type != "RNA":
         input.extend(
                 expand("results/qualimap/{sample}", sample=SAMPLES)  
             )
-    else:
+    elif check_gtf():
         input.extend(
                     expand("results/qualimap_RNA/{sample}", sample=SAMPLES)     
                 )
+    else:
+        print("Note: no .gtf annotation in the subgenome directories, so Qualimap is skipped for RNA data. Add one .gtf file per subgenome to get Qualimap RNA-seq reports.")
 
 
     if FILTER != False:
