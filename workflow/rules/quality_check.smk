@@ -7,6 +7,8 @@ rule sort_ref_bams:
         classification_log="results/logs/eagle_rc/restoring_chr_names/{sample}.log",
     log:
         sort_ref_log="results/logs/qualimap/{sample}/sorting.log",
+    benchmark:
+        "results/benchmarks/sort_ref_bams/{sample}.tsv",
     conda:
         "../envs/samtools.yaml"
     threads: workflow.cores
@@ -24,6 +26,8 @@ rule qualimap:
         directory("results/qualimap/{sample}"),
     log:
         "results/logs/qualimap/{sample}/qualimap.log",
+    benchmark:
+        "results/benchmarks/qualimap/{sample}.tsv",
     conda:
         "../envs/qualimap.yaml"
     threads: workflow.cores 
@@ -40,6 +44,8 @@ rule RNA_qualimap:
         directory("results/qualimap_RNA/{sample}"),
     log:
         "results/logs/qualimap_RNA/{sample}.log",
+    benchmark:
+        "results/benchmarks/RNA_qualimap/{sample}.tsv",
     conda:
         "../envs/qualimap.yaml"
     threads: 1
@@ -63,5 +69,7 @@ rule multiqc_dir:
         out = "results/MultiQC/multiqc_report.html", 
     log:
         "results/logs/multiqc.log",
+    benchmark:
+        "results/benchmarks/multiqc_dir/multiqc_dir.tsv",
     wrapper:
         WRAPPER_RELEASE + "/bio/multiqc"

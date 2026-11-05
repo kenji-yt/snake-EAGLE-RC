@@ -3,6 +3,8 @@ rule install_eagle:
         eagle_bin=directory("results/eagle_rc/eagle_installation"),
     log:
         "results/logs/eagle_rc/build_eagle.log",
+    benchmark:
+        "results/benchmarks/install_eagle/install_eagle.tsv",
     params:
         eagle_install_dir="results/eagle_rc/eagle_installation",
         htslib_install_dir="results/eagle_rc/eagle_installation/htslib",
@@ -25,6 +27,8 @@ rule make_read_classification_script:
         eagle_installation="results/eagle_rc/eagle_installation",
     output:
         "results/eagle_rc/{sample}/classification_script.sh"
+    benchmark:
+        "results/benchmarks/make_read_classification_script/{sample}.tsv",
     params:
         sample_name="{sample}",
         assemblies=get_renamed_assemblies_dict(PROGENITORS),
@@ -43,6 +47,8 @@ rule read_classification:
         script="results/eagle_rc/{sample}/classification_script.sh",
     output:
         "results/logs/eagle_rc/classification/{sample}.log",
+    benchmark:
+        "results/benchmarks/read_classification/{sample}.tsv",
     params:
         tmp_log="results/logs/eagle_rc/classification/tmp_or_failed_{sample}.log"
     conda:
@@ -66,6 +72,8 @@ rule change_classified_bam_filenames:
         log="results/logs/eagle_rc/classification/{sample}.log",
     log:
         "results/logs/eagle_rc/renaming_files/{sample}.log",
+    benchmark:
+        "results/benchmarks/change_classified_bam_filenames/{sample}.tsv",
     run:
         command=make_rename_command(wildcards.sample)
         shell(command)
@@ -76,6 +84,8 @@ rule restore_chromosome_names_classified_bams:
         log="results/logs/eagle_rc/renaming_files/{sample}.log",
     log:
         "results/logs/eagle_rc/restoring_chr_names/{sample}.log",
+    benchmark:
+        "results/benchmarks/restore_chromosome_names_classified_bams/{sample}.tsv",
     conda:
         "../envs/samtools.yaml"
     shell:

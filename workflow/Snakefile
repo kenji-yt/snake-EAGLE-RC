@@ -115,6 +115,10 @@ include: "rules/quality_check.smk"
 include: "rules/read_classification.smk"
 include: "rules/filtering.smk"
 
+# Start time of each run, for the run time in the reproducibility report (not written by dry runs)
+onstart:
+    shell("mkdir -p results/logs && date +%s > results/logs/run_start.txt")
+
 rule all:
     input:
         "results/snake_EAGLE_RC_reproducibility_report.txt"

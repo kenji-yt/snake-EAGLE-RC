@@ -5,6 +5,8 @@ rule rename_assemblies:
         "results/renamed_assemblies/{progenitor}/renamed_{progenitor}_assembly.fa"
     log:
         "results/logs/assembly_renaming/{progenitor}.log"
+    benchmark:
+        "results/benchmarks/rename_assemblies/{progenitor}.tsv",
     shell: 
         """ 
         sed 's/^>/>UNQ_{wildcards.progenitor}_NME_/' {input} > {output}
@@ -22,6 +24,8 @@ rule bwa_mem2:
         "results/bwa/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/bwa/alignment/{sample}_{progenitor}.log",
+    benchmark:
+        "results/benchmarks/bwa_mem2/{sample}_{progenitor}.tsv",
     threads: workflow.cores
     wrapper:
         WRAPPER_RELEASE + "/bio/bwa-mem2/mem"
@@ -34,6 +38,8 @@ rule bwa_mem2_index:
         idx=multiext("results/bwa/{progenitor}/{progenitor}",".amb", ".ann", ".bwt.2bit.64", ".pac", ".0123"),
     log:
         "results/logs/bwa/index/{progenitor}.log",
+    benchmark:
+        "results/benchmarks/bwa_mem2_index/{progenitor}.tsv",
     wrapper:
         WRAPPER_RELEASE + "/bio/bwa-mem2/index"
 
@@ -52,6 +58,8 @@ rule bismark_alignment:
         
     log:
         "results/logs/bismark/alignment/{sample}_{progenitor}.log"
+    benchmark:
+        "results/benchmarks/bismark_alignment/{sample}_{progenitor}.tsv",
     threads: 5 # Should be the maximal usage for the alignment. See: https://github.com/FelixKrueger/Bismark/issues/706
     params:
         extra="--local" if SOFT_CLIP else "",
@@ -67,6 +75,8 @@ rule bismark_genome_preparation_fa:
         bismark_genome_dir=directory("results/renamed_assemblies/{progenitor}/bismark"),
     log:
         "results/logs/bismark/index/{progenitor}/Bisulfite_Genome.log"
+    benchmark:
+        "results/benchmarks/bismark_genome_preparation_fa/{progenitor}.tsv",
     threads: workflow.cores # the wrapper needs at least 2
     wrapper:
         WRAPPER_RELEASE + "/bio/bismark/bismark_genome_preparation"
@@ -85,6 +95,8 @@ rule star_alignment:
         aln="results/star/{sample}/{sample}_{progenitor}_aligned.bam",
     log:
         "results/logs/star/aligment/{sample}_{progenitor}.log",
+    benchmark:
+        "results/benchmarks/star_alignment/{sample}_{progenitor}.tsv",
     message:
         "Aligning RNA seq data with STAR."
     params:
@@ -105,6 +117,8 @@ rule star_index_genomes:
     threads: workflow.cores
     log:
         "results/logs/star/index/{progenitor}.log",
+    benchmark:
+        "results/benchmarks/star_index_genomes/{progenitor}.tsv",
     wrapper:
         WRAPPER_RELEASE + "/bio/star/index"
         

@@ -8,6 +8,8 @@ rule fastp_se:
         json="results/fastp/{sample}/{sample}_se.fastp.json"
     log:
         "results/logs/fastp/{sample}.log"
+    benchmark:
+        "results/benchmarks/fastp_se/{sample}.tsv",
     threads: min(workflow.cores, 8)
     params:
         extra=get_filter_params()
@@ -26,6 +28,8 @@ rule fastp_pe:
         json="results/fastp/{sample}/{sample}_pe.fastp.json"
     log:
         "results/logs/fastp/{sample}.log"
+    benchmark:
+        "results/benchmarks/fastp_pe/{sample}.tsv",
     threads: min(workflow.cores, 8)
     params:
         extra=get_filter_params()
