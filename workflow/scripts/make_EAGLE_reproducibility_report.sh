@@ -153,12 +153,12 @@ if [ "$OS" == "Linux" ]; then
     echo "Linux md5sum checksums for the output files" >> "${report}"
     md5sum results/MultiQC/multiqc_report.html | awk '{print $2"\t"$1}' >> "${report}"  
     echo "" >> "${report}"
-    find "results/eagle_rc/" -name "*.ref.bam" | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
+    find "results/eagle_rc/" \( -name "*.ref.bam" -o -name "*.unk.bam" \) | xargs -n${n_cores} md5sum | awk '{print $2"\t"$1}' >> "${report}"
 else
     echo "Mac md5 checksums for the input files" >> "${report}"
     md5 results/MultiQC/multiqc_report.html | awk '{print $2"\t"$4}' >> "${report}"  
     echo "" >> "${report}"
-    find "results/eagle_rc/" -name "*.ref.bam" | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"
+    find "results/eagle_rc/" \( -name "*.ref.bam" -o -name "*.unk.bam" \) | xargs -n${n_cores} md5 | awk '{print $2"\t"$4}' >> "${report}"
 fi
 echo "" >> "${report}"
 echo "" >> "${report}"

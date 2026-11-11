@@ -17,7 +17,7 @@ The workflow performs read classification with EAGLE-RC in "--ngi" (no genotype)
 - Reads are filtered and trimmed using fastp (optional). A quality report is produced. 
 - Renamed assemblies are produced to ensure that the chromosome names differ between each assembly (required by EAGLE-RC).
 - Reads are aligned to each renamed assembly. This is done with [bwa-mem2](https://github.com/bwa-mem2/bwa-mem2) for DNA, [star](https://github.com/alexdobin/STAR) for RNA and [bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) for WGBS.  
-- The bam files are sorted (required for qualimap). 
+- The bam files are sorted (required for Qualimap). 
 - Bam files and renamed assemblies are passed to EAGLE-RC which classified reads in each bam file. See [EAGLE-RC](https://github.com/tony-kuo/eagle?tab=readme-ov-file#eagle-rc) for details on the output produced. 
 - Classified bam files are modified to restore the original chromosome names. Renamed assemblies are deleted.
 - Qualimap produces a report for the bam files containing reads assigned to the assemblies (".ref"). 
@@ -76,13 +76,17 @@ Make sure to have snakemake make installed, to replace 'your/input/directory' wi
 
 The outputs will now be generated in a results directory within the snake-EAGLE-RC directory. 
 
-Sometimes the workflow might be interrupted during execution. If this occurs, you do not need to repeat every step. Simply fix the issue and run the snakemake command again. For example, the workflow might fail due to issuficient RAM memory for qualimap. In that case you can add the flag "--set-resources qualimap:mem_mb=16000" (here setting 16000MB of memory to the each qualimap run) to your command, then run it (change to "RNA_qualimap" if using RNA data). The analysis should resume where it left off. 
+Sometimes the workflow might be interrupted during execution. If this occurs, you do not need to repeat every step. Simply fix the issue and run the snakemake command again. For example, the workflow might fail due to issuficient RAM memory for Qualimap (see below).
+
+#### Qualimap Memory Allocation
+
+You might run into memory issues with Qualimap. You can manually provide it with more memory by passing the argument "--set-resources qualimap:mem_mb=16000" (here setting 16000MB of memory to the each Qualimap run). Change to "--set-resources qualimap:mem_mb=16000" if using RNA data. If you want to make sure the workflow provides all available memory to Qualimap (for example in a slurm run allocated 500GB), set '--resources mem_mb=500000 --set-resources eagle_rc_qualimap:mem_mb=500000'. This tell snakemake that the whole workflow is given 500GB and since Qualimap is given 500GB too, the workflow will not run anything in parallel to Qualimap.  
 
 ## Quality Check & Filtering
 
 Quality check, filtering and trimming can be performed for the input data using [fastp](https://github.com/OpenGene/fastp). You can run the workflow only until the this step using "--until fastp_se" or "fast_pe" for singe-end and paired-end respectively (Assuming only one data type in your input. If you have a mix of paired-end and single-end this wont work). After filtering and verifying the quality, running the snakemake command will resume the workflow from the fastp step onwards.  You can set the config argument "FILTER=false" to avoid fastp filtering, trimming and reporting. By default, "FILTER" is set to "True" such that the workflow performs trimming and filtering with fastp in default mode. If you wish to set your own fastp filtering and trimming parameters simply set the "FILTER" variable to the flags you wish to pass to fastp (eg. "FILTER='-q 20 -u 30'"). 
 
-Quality reports for the bam files containing the classified reads are also produced using [qualimap](http://qualimap.conesalab.org/). 
+Quality reports for the bam files containing the classified reads are also produced using [Qualimap](http://qualimap.conesalab.org/). 
 
 In the end, all quality checks are reported in 'results/MultiQC/multiqc_report.html'.
 
@@ -91,10 +95,10 @@ In the end, all quality checks are reported in 'results/MultiQC/multiqc_report.h
 Results will be written to a directory called "results" inside the snake-EAGLE-RC directory. In this directory you will find the following files and directories: 
 - eagle_rc: Contains the eagle installation and one directory per sample with the eagle-rc results and a script used to produce these results.
 - fastp (if FILTER='True'): Contains one directory per sample with filtered and trimmed read files and quality check reports. 
-- qualimap (or qualimap_RNA): Contains one directory per sample containing the output of qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
+- qualimap (or qualimap_RNA): Contains one directory per sample containing the output of Qualimap for every ".ref." bam files in the 'eagle_rc' directory. 
 - star/bismark/bwa: Contains bam files of the reads aligned to each (renamed) subgenome. It is important to note that these bam files are assigned to subgenome assemblies which had their chromosome names changed to match eagle-rc requirements. If you intend to use these files you might therefore want to renamed them. The chromosomes were renamed by prepending "UNQ_{subgenome_name}_NME_". 
 - logs: Contains logs for each analysis.
-- MultiQC: Contains the file "multiqc_report.html" which compiles qualimap and fastp reports. 
+- MultiQC: Contains the file "multiqc_report.html" which compiles ualimap and fastp reports. 
 - snakemake_EAGLE_RC_reproducibility_report.txt: A text file with details about the input and output files and the tools and parameters used. 
 
 ## Additional considerations
