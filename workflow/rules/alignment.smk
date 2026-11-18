@@ -61,6 +61,7 @@ rule bismark_alignment:
     benchmark:
         "results/benchmarks/bismark_alignment/{sample}_{progenitor}.tsv",
     threads: 5 # Should be the maximal usage for the alignment. See: https://github.com/FelixKrueger/Bismark/issues/706
+    shadow: "minimal" # Bismark (Rust) writes converted reads to the working directory; a separate one per job prevents collisions
     params:
         extra="--local" if SOFT_CLIP else "",
     wrapper:
